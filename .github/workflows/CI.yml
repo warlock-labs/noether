@@ -1,0 +1,149 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    branches:
+      - main
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: test ${{ matrix.rust }} ${{ matrix.flags }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        rust: [ "stable", "beta", "nightly", "1.65" ] # MSRV
+        flags: [ "--no-default-features", "", "--all-features" ]
+        exclude:
+          # Skip because some features have highest MSRV.
+          - rust: "1.65" # MSRV
+            flags: "--all-features"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      # Only run tests on the latest stable and above
+      - name: check
+        if: ${{ matrix.rust == '1.65' }} # MSRV
+        run: cargo check --workspace ${{ matrix.flags }}
+      - name: test
+        if: ${{ matrix.rust != '1.65' }} # MSRV
+        run: cargo test --workspace ${{ matrix.flags }}
+
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+    env:
+      LLVMCOV_VERSION: 0.5.14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+          components: clippy, rustfmt
+
+      - name: Cache rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: rust-cache-hyper-server-coverage-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}-${{ env.LLVMCOV_VERSION }}
+
+      - name: Install cargo-llvm-cov
+        run: cargo install cargo-llvm-cov --version=${{ env.LLVMCOV_VERSION }} --locked
+
+      - name: Generate code coverage
+        run: cargo llvm-cov --all-features --workspace --lcov --output-path lcov.info
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          files: lcov.info
+          fail_ci_if_error: false
+
+# TODO(Miri presently has errors/detects undefined behavior in the codebase)
+# We should fix this and then enable.
+#  miri:
+#    name: miri ${{ matrix.flags }}
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 30
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        flags: [ "--no-default-features", "", "--all-features" ]
+#    env:
+#      MIRIFLAGS: -Zmiri-strict-provenance
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: dtolnay/rust-toolchain@miri
+#      - uses: Swatinem/rust-cache@v2
+#        with:
+#          cache-on-failure: true
+#      - run: cargo miri setup ${{ matrix.flags }}
+#      - run: cargo miri test ${{ matrix.flags }}
+
+  feature-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: taiki-e/install-action@cargo-hack
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - name: cargo hack
+        run: cargo hack check --feature-powerset --depth 2
+
+  clippy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - run: cargo clippy --workspace --all-targets --all-features
+        env:
+          RUSTFLAGS: -Dwarnings
+
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - run: cargo doc --workspace --all-features --no-deps --document-private-items
+        env:
+          RUSTDOCFLAGS: "--cfg docsrs -D warnings"
+
+  fmt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - run: cargo fmt --all --check

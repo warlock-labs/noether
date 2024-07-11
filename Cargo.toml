@@ -1,0 +1,26 @@
+[package]
+authors = ["0xAlcibiades <alcibiades.eth@protonmail.com>"]
+categories = ["mathematics"]
+description = "Abstract algebraic structures for Rust"
+homepage = "https://github.com/warlock-labs/noether"
+keywords = ["math", "algebra", "scalar"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/warlock-labs/noether"
+name = "noether"
+version = "0.2.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+num-traits = "0.2.19"
+
+[lib]
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "benchmarks"
+harness = false
