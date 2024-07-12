@@ -11,37 +11,6 @@
 //! structs based on the properties they satisfy, and be applied in most cases for
 //! anything from scalar values to n-dimensional arrays.
 //!
-//! ## Binary Operations and Their Properties
-//!
-//! An algebraic structure consists of a set with one or more binary operations.
-//! Let 𝑆 be a set (Self) and • be a binary operation on 𝑆.
-//! Here are the key properties a binary operation may possess, organized from simplest to most complex:
-//!
-//! - (Closure) ∀ a, b ∈ 𝑆, a • b ∈ 𝑆
-//! - (Totality) ∀ a, b ∈ 𝑆, a • b is defined
-//! - (Commutativity) ∀ a, b ∈ 𝑆, a • b = b • a
-//! - (Associativity) ∀ a, b, c ∈ 𝑆, (a • b) • c = a • (b • c)
-//! - (Idempotence) ∀ a ∈ 𝑆, a • a = a
-//! - (Identity) ∃ e ∈ 𝑆, ∀ a ∈ 𝑆, e • a = a • e = a
-//! - (Inverses) ∀ a ∈ 𝑆, ∃ b ∈ 𝑆, a • b = b • a = e (where e is the identity)
-//! - (Cancellation) ∀ a, b, c ∈ 𝑆, a • b = a • c ⇒ b = c (a ≠ 0 if ∃ zero element)
-//! - (Divisibility) ∀ a, b ∈ 𝑆, ∃ x ∈ 𝑆, a • x = b
-//! - (Regularity) ∀ a ∈ 𝑆, ∃ x ∈ 𝑆, a • x • a = a
-//! - (Alternativity) ∀ a, b ∈ 𝑆, (a • a) • b = a • (a • b) ∧ (b • a) • a = b • (a • a)
-//! - (Distributivity) ∀ a, b, c ∈ 𝑆, a * (b + c) = (a * b) + (a * c)
-//! - (Absorption) ∀ a, b ∈ 𝑆, a * (a + b) = a ∧ a + (a * b) = a
-//! - (Monotonicity) ∀ a, b, c ∈ 𝑆, a ≤ b ⇒ a • c ≤ b • c ∧ c • a ≤ c • b
-//! - (Modularity) ∀ a, b, c ∈ 𝑆, a ≤ c ⇒ a ∨ (b ∧ c) = (a ∨ b) ∧ c
-//! - (Switchability) ∀ x, y, z ∈ S, (x + y) * z = x + (y * z)
-//! - (Min/Max Ops) ∀ a, b ∈ S, a ∨ b = min{a,b}, a ∧ b = max{a,b}
-//! - (Defect Op) ∀ a, b ∈ S, a *₃ b = a + b - 3
-//! - (Continuity) ∀ V ⊆ 𝑆 open, f⁻¹(V) is open (for f: 𝑆 → 𝑆, 𝑆 topological)
-//! - (Solvability) ∃ series {Gᵢ} | G = G₀ ▷ G₁ ▷ ... ▷ Gₙ = {e}, [Gᵢ, Gᵢ] ≤ Gᵢ₊₁
-//! - (Alg. Closure) ∀ p(x) ∈ 𝑆[x] non-constant, ∃ a ∈ 𝑆 | p(a) = 0
-//!
-//! In general, checking the properties of the binary operators at compile time
-//! which are implemented is a challenge.
-//!
 //! ## Hierarchy of Scalar Algebraic Structures
 //!
 //! ```text

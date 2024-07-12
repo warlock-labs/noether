@@ -3,8 +3,6 @@
 //! This module defines traits for various operators and their properties,
 //! providing a foundation for implementing algebraic structures in Rust.
 //!
-//! ## Binary Operations and Their Properties
-//!
 //! An algebraic structure consists of a set with one or more binary operations.
 //! Let 𝑆 be a set (Self) and • be a binary operation on 𝑆.
 //! Here are the key properties a binary operation may possess, organized from simplest to most complex:
