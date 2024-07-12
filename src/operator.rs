@@ -74,9 +74,68 @@
 //! still manually implement these traits for your types, and the manual implementations
 //! will take precedence over these blanket implementations.
 
-use std::ops::{Add, AddAssign, Sub, SubAssign, Mul, MulAssign, Div, DivAssign, Rem, RemAssign, Neg};
-use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not, Shl, ShlAssign, Shr, ShrAssign};
-use num_traits::{Zero, One, Euclid};
+use num_traits::{Euclid, Inv, One, Zero};
+use std::ops::{
+    Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
+};
+use std::ops::{
+    BitAnd, BitAndAssign, BitOr, BitOrAssign, BitXor, BitXorAssign, Not, Shl, ShlAssign, Shr,
+    ShrAssign,
+};
+
+/// Marker trait for commutative operations
+pub trait Commutativity {}
+
+/// Marker trait for associative operations
+pub trait Associativity {}
+
+/// Marker trait for idempotent operations
+pub trait Idempotence {}
+
+/// Marker trait for operations with inverses
+pub trait Inverses {}
+
+/// Marker trait for operations with the cancellation property
+pub trait Cancellation {}
+
+/// Marker trait for operations with the divisibility property
+pub trait Divisibility {}
+
+/// Marker trait for regular operations
+pub trait Regularity {}
+
+/// Marker trait for alternative operations
+pub trait Alternativity {}
+
+/// Marker trait for distributive operations
+pub trait Distributivity {}
+
+/// Marker trait for operations with the absorption property
+pub trait Absorption {}
+
+/// Marker trait for monotonic operations
+pub trait Monotonicity {}
+
+/// Marker trait for modular operations
+pub trait Modularity {}
+
+/// Marker trait for switchable operations
+pub trait Switchability {}
+
+/// Marker trait for min/max operations
+pub trait MinMaxOps {}
+
+/// Marker trait for defect operations
+pub trait DefectOp {}
+
+/// Marker trait for continuous operations
+pub trait Continuity {}
+
+/// Marker trait for solvable operations
+pub trait Solvability {}
+
+/// Marker trait for algebraically closed operations
+pub trait AlgebraicClosure {}
 
 /// Trait for closed addition operation.
 pub trait ClosedAdd<Rhs = Self>: Add<Rhs, Output = Self> {}
@@ -110,6 +169,9 @@ pub trait ClosedRemRef<Rhs = Self>: for<'a> Rem<&'a Rhs, Output = Self> {}
 
 /// Trait for closed negation operation.
 pub trait ClosedNeg: Neg<Output = Self> {}
+
+/// Trait for closed negation operation.
+pub trait ClosedInv: Inv<Output = Self> {}
 
 /// Trait for closed addition assignment operation.
 pub trait ClosedAddAssign<Rhs = Self>: AddAssign<Rhs> {}
@@ -260,6 +322,7 @@ impl<T, Rhs> ClosedDivRef<Rhs> for T where T: for<'a> Div<&'a Rhs, Output = T> {
 impl<T, Rhs> ClosedRem<Rhs> for T where T: Rem<Rhs, Output = T> {}
 impl<T, Rhs> ClosedRemRef<Rhs> for T where T: for<'a> Rem<&'a Rhs, Output = T> {}
 impl<T> ClosedNeg for T where T: Neg<Output = T> {}
+impl<T> ClosedInv for T where T: Inv<Output = T> {}
 
 impl<T, Rhs> ClosedAddAssign<Rhs> for T where T: AddAssign<Rhs> {}
 impl<T, Rhs> ClosedAddAssignRef<Rhs> for T where T: for<'a> AddAssign<&'a Rhs> {}

@@ -125,51 +125,7 @@
 
 mod operator;
 
-use num_traits::Euclid;
-pub use num_traits::{Inv, One, Zero};
-pub use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
-
-/// Trait alias for `Add` with result of type `Self`.
-pub trait ClosedAdd<Right = Self>: Sized + Add<Right, Output = Self> {}
-
-/// Trait alias for `Sub` with result of type `Self`.
-pub trait ClosedSub<Right = Self>: Sized + Sub<Right, Output = Self> {}
-
-/// Trait alias for `Mul` with result of type `Self`.
-pub trait ClosedMul<Right = Self>: Sized + Mul<Right, Output = Self> {}
-
-/// Trait alias for `Div` with result of type `Self`.
-pub trait ClosedDiv<Right = Self>: Sized + Div<Right, Output = Self> {}
-
-/// Trait alias for `Neg` with result of type `Self`.
-pub trait ClosedNeg: Sized + Neg<Output = Self> {}
-
-/// Trait alias for `Add` and `AddAssign` with result of type `Self`.
-pub trait ClosedAddAssign<Right = Self>: ClosedAdd<Right> + AddAssign<Right> {}
-
-/// Trait alias for `Sub` and `SubAssign` with result of type `Self`.
-pub trait ClosedSubAssign<Right = Self>: ClosedSub<Right> + SubAssign<Right> {}
-
-/// Trait alias for `Mul` and `MulAssign` with result of type `Self`.
-pub trait ClosedMulAssign<Right = Self>: ClosedMul<Right> + MulAssign<Right> {}
-
-/// Trait alias for `Div` and `DivAssign` with result of type `Self`.
-pub trait ClosedDivAssign<Right = Self>: ClosedDiv<Right> + DivAssign<Right> {}
-
-/// Trait alias for `Inv` with result of type `Self`.
-pub trait ClosedInv: Inv<Output = Self> {}
-
-// Blanket implementations for the closed traits
-impl<T, Right> ClosedAdd<Right> for T where T: Add<Right, Output = T> + AddAssign<Right> {}
-impl<T, Right> ClosedSub<Right> for T where T: Sub<Right, Output = T> + SubAssign<Right> {}
-impl<T, Right> ClosedMul<Right> for T where T: Mul<Right, Output = T> + MulAssign<Right> {}
-impl<T, Right> ClosedDiv<Right> for T where T: Div<Right, Output = T> + DivAssign<Right> {}
-impl<T> ClosedNeg for T where T: Neg<Output = T> {}
-impl<T, Right> ClosedAddAssign<Right> for T where T: ClosedAdd<Right> + AddAssign<Right> {}
-impl<T, Right> ClosedSubAssign<Right> for T where T: ClosedSub<Right> + SubAssign<Right> {}
-impl<T, Right> ClosedMulAssign<Right> for T where T: ClosedMul<Right> + MulAssign<Right> {}
-impl<T, Right> ClosedDivAssign<Right> for T where T: ClosedDiv<Right> + DivAssign<Right> {}
-impl<T> ClosedInv for T where T: Inv<Output = T> {}
+pub use operator::*;
 
 /// Basic representation of a mathematical set, a collection of distinct objects.
 ///
@@ -190,28 +146,6 @@ pub trait Set: Sized + Clone + PartialEq {
     /// Checks if the given element is a member of the set.
     fn contains(&self, element: &Self) -> bool;
 }
-
-// TODO
-// A lot of the weirdness here comes from the fact that we can't
-// easily wrap the binary operator and find out if it has certain
-// properties, and so we introduce this marker trait
-// and the chains of lookalike strucure up to the semiring
-// when the two operators unit. This is definitely sub optimal.
-
-/// Marker trait for associative operations.
-///
-/// An operation • is associative if (a • b) • c = a • (b • c) for all a, b, c in the set.
-pub trait Associative {}
-
-/// Marker trait for commutative operations.
-///
-/// An operation • is commutative if a • b = b • a for all a, b in the set.
-pub trait Commutative {}
-
-/// Marker trait for idempotent operations.
-///
-/// An operation • is idempotent if a • a = a for all a in the set.
-pub trait Idempotent {}
 
 /// Represents a set with a closed addition operation (magma).
 ///
@@ -240,26 +174,26 @@ impl<T> AdditiveQuasigroup for T where T: AdditiveMagma {}
 ///
 /// # Properties
 /// - Associativity: ∀ a, b, c ∈ Self, (a + b) + c = a + (b + c)
-pub trait AdditiveSemigroup: AdditiveMagma + Associative {}
+pub trait AdditiveSemigroup: AdditiveMagma + Associativity {}
 
-impl<T> AdditiveSemigroup for T where T: AdditiveMagma + Associative {}
+impl<T> AdditiveSemigroup for T where T: AdditiveMagma + Associativity {}
 
 /// Represents an additive quasigroup with an identity element (zero).
 ///
 /// # Properties
 /// - Identity Element: ∃ 0 ∈ Self, ∀ a ∈ Self, 0 + a = a + 0 = a
-pub trait AdditiveLoop: AdditiveQuasigroup + Zero {}
+pub trait AdditiveLoop: AdditiveQuasigroup + ClosedZero {}
 
-impl<T> AdditiveLoop for T where T: AdditiveQuasigroup + Zero {}
+impl<T> AdditiveLoop for T where T: AdditiveQuasigroup + ClosedZero {}
 
 /// Represents an additive semigroup with an identity element (zero).
 ///
 /// # Properties
 /// - Associativity (from Semigroup)
 /// - Identity Element: ∃ 0 ∈ Self, ∀ a ∈ Self, 0 + a = a + 0 = a
-pub trait AdditiveMonoid: AdditiveSemigroup + Zero {}
+pub trait AdditiveMonoid: AdditiveSemigroup + ClosedZero {}
 
-impl<T> AdditiveMonoid for T where T: AdditiveSemigroup + Zero {}
+impl<T> AdditiveMonoid for T where T: AdditiveSemigroup + ClosedZero {}
 
 /// Represents an additive group.
 ///
@@ -279,9 +213,9 @@ impl<T> AdditiveGroup for T where T: AdditiveMonoid + AdditiveQuasigroup + Close
 /// # Properties
 /// - All Group properties
 /// - Commutativity: ∀ a, b ∈ Self, a + b = b + a
-pub trait AdditiveAbelianGroup: AdditiveGroup + Commutative {}
+pub trait AdditiveAbelianGroup: AdditiveGroup + Commutativity {}
 
-impl<T> AdditiveAbelianGroup for T where T: AdditiveGroup + Commutative {}
+impl<T> AdditiveAbelianGroup for T where T: AdditiveGroup + Commutativity {}
 
 /// Represents a set with a closed multiplication operation (magma).
 pub trait MultiplicativeMagma: Set + ClosedMul + ClosedMulAssign {}
@@ -297,21 +231,27 @@ pub trait MultiplicativeQuasigroup: MultiplicativeMagma {}
 impl<T> MultiplicativeQuasigroup for T where T: MultiplicativeMagma {}
 
 /// Represents an associative multiplicative magma.
-pub trait MultiplicativeSemigroup: MultiplicativeMagma + Associative {}
+pub trait MultiplicativeSemigroup: MultiplicativeMagma + Associativity {}
 
-impl<T> MultiplicativeSemigroup for T where T: MultiplicativeMagma + Associative {}
+impl<T> MultiplicativeSemigroup for T where T: MultiplicativeMagma + Associativity {}
 
 /// Represents a multiplicative quasigroup with an identity element (one).
-pub trait MultiplicativeLoop: MultiplicativeQuasigroup + One {}
+pub trait MultiplicativeLoop: MultiplicativeQuasigroup + ClosedOne {}
 
-impl<T> MultiplicativeLoop for T where T: MultiplicativeQuasigroup + One {}
+impl<T> MultiplicativeLoop for T where T: MultiplicativeQuasigroup + ClosedOne {}
 
 /// Represents a multiplicative monoid.
 ///
 /// A monoid is a semigroup with an identity element.
-pub trait MultiplicativeMonoid: MultiplicativeSemigroup + MultiplicativeQuasigroup + One {}
+pub trait MultiplicativeMonoid:
+    MultiplicativeSemigroup + MultiplicativeQuasigroup + ClosedOne
+{
+}
 
-impl<T> MultiplicativeMonoid for T where T: MultiplicativeSemigroup + MultiplicativeQuasigroup + One {}
+impl<T> MultiplicativeMonoid for T where
+    T: MultiplicativeSemigroup + MultiplicativeQuasigroup + ClosedOne
+{
+}
 
 /// Represents a multiplicative group.
 ///
@@ -321,9 +261,9 @@ pub trait MultiplicativeGroup: MultiplicativeMonoid + ClosedInv {}
 impl<T> MultiplicativeGroup for T where T: MultiplicativeMonoid + ClosedInv {}
 
 /// Represents a multiplicative abelian (commutative) group.
-pub trait MultiplicativeAbelianGroup: MultiplicativeGroup + Commutative {}
+pub trait MultiplicativeAbelianGroup: MultiplicativeGroup + Commutativity {}
 
-impl<T> MultiplicativeAbelianGroup for T where T: MultiplicativeGroup + Commutative {}
+impl<T> MultiplicativeAbelianGroup for T where T: MultiplicativeGroup + Commutativity {}
 
 /// Represents a semiring.
 ///
@@ -383,9 +323,9 @@ impl<T> IntegralDomain for T where T: CommutativeRing {}
 /// - Euclidean function f: Self \ {0} → ℕ satisfying:
 ///   1. ∀ a, b ∈ Self, b ≠ 0, ∃ q, r ∈ Self such that a = bq + r, where r = 0 or f(r) < f(b)
 ///   2. ∀ a, b ∈ Self, b ≠ 0 ⇒ f(a) ≤ f(ab)
-pub trait EuclideanDomain: IntegralDomain + Euclid {}
+pub trait EuclideanDomain: IntegralDomain + ClosedRemEuclid {}
 
-impl<T> EuclideanDomain for T where T: IntegralDomain + Euclid {}
+impl<T> EuclideanDomain for T where T: IntegralDomain + ClosedRemEuclid {}
 
 /// Represents a field.
 ///
@@ -430,6 +370,8 @@ impl<T> RealField for T where T: Field + PartialOrd {}
 mod tests {
     use super::*;
     use std::borrow::Cow;
+    use std::ops::Add;
+    use std::ops::AddAssign;
 
     #[derive(Debug, Clone, PartialEq)]
     struct StringMagma<'a>(Cow<'a, str>);
