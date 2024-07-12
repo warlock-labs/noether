@@ -123,6 +123,8 @@
 //!                   └───────────┘
 //! ```
 
+mod operator;
+
 use num_traits::Euclid;
 pub use num_traits::{Inv, One, Zero};
 pub use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Sub, SubAssign};
