@@ -1,98 +1,126 @@
-//! # Algebraic Structures
+//! # Noether
 //!
-//! This module provides implementations of various algebraic structures,
-//! from basic ones like magmas to more complex ones like fields.
+//! Noether provides traits and blanket implementations for algebraic structures,
+//! from basic ones like magmas to more complex ones like fields. It leans heavily on
+//! the basic traits available in std::ops and num_traits.
+//!
+//! The goal is to provide a common interface for working with algebraic structures
+//! in Rust.
+//!
+//! Interestingly, these traits can be used to categorize implementations of various
+//! structs based on the properties they satisfy, and be applied in most cases for
+//! anything from scalar values to n-dimensional arrays.
 //!
 //! ## Binary Operations and Their Properties
 //!
 //! An algebraic structure consists of a set with one or more binary operations.
-//! Let Self be a set and • be a binary operation on Self.
-//! Here are the key properties a binary operation may possess:
+//! Let 𝑆 be a set (Self) and • be a binary operation on 𝑆.
+//! Here are the key properties a binary operation may possess, organized from simplest to most complex:
 //!
-//! - (Closure)        ∀ a, b ∈ Self, a • b ∈ Self
-//! - (Associativity)  ∀ a, b, c ∈ Self, (a • b) • c = a • (b • c)
-//! - (Commutativity)  ∀ a, b ∈ Self, a • b = b • a
-//! - (Identity)       ∃ e ∈ Self, ∀ a ∈ Self, e • a = a • e = a
-//! - (Inverses)       ∀ a ∈ Self, ∃ b ∈ Self, a • b = b • a = e (where e is the identity)
-//! - (Idempotence)    ∀ a ∈ Self, a • a = a
+//! - (Closure) ∀ a, b ∈ 𝑆, a • b ∈ 𝑆
+//! - (Totality) ∀ a, b ∈ 𝑆, a • b is defined
+//! - (Commutativity) ∀ a, b ∈ 𝑆, a • b = b • a
+//! - (Associativity) ∀ a, b, c ∈ 𝑆, (a • b) • c = a • (b • c)
+//! - (Idempotence) ∀ a ∈ 𝑆, a • a = a
+//! - (Identity) ∃ e ∈ 𝑆, ∀ a ∈ 𝑆, e • a = a • e = a
+//! - (Inverses) ∀ a ∈ 𝑆, ∃ b ∈ 𝑆, a • b = b • a = e (where e is the identity)
+//! - (Cancellation) ∀ a, b, c ∈ 𝑆, a • b = a • c ⇒ b = c (a ≠ 0 if ∃ zero element)
+//! - (Divisibility) ∀ a, b ∈ 𝑆, ∃ x ∈ 𝑆, a • x = b
+//! - (Regularity) ∀ a ∈ 𝑆, ∃ x ∈ 𝑆, a • x • a = a
+//! - (Alternativity) ∀ a, b ∈ 𝑆, (a • a) • b = a • (a • b) ∧ (b • a) • a = b • (a • a)
+//! - (Distributivity) ∀ a, b, c ∈ 𝑆, a * (b + c) = (a * b) + (a * c)
+//! - (Absorption) ∀ a, b ∈ 𝑆, a * (a + b) = a ∧ a + (a * b) = a
+//! - (Monotonicity) ∀ a, b, c ∈ 𝑆, a ≤ b ⇒ a • c ≤ b • c ∧ c • a ≤ c • b
+//! - (Modularity) ∀ a, b, c ∈ 𝑆, a ≤ c ⇒ a ∨ (b ∧ c) = (a ∨ b) ∧ c
+//! - (Switchability) ∀ x, y, z ∈ S, (x + y) * z = x + (y * z)
+//! - (Min/Max Ops) ∀ a, b ∈ S, a ∨ b = min{a,b}, a ∧ b = max{a,b}
+//! - (Defect Op) ∀ a, b ∈ S, a *₃ b = a + b - 3
+//! - (Continuity) ∀ V ⊆ 𝑆 open, f⁻¹(V) is open (for f: 𝑆 → 𝑆, 𝑆 topological)
+//! - (Solvability) ∃ series {Gᵢ} | G = G₀ ▷ G₁ ▷ ... ▷ Gₙ = {e}, [Gᵢ, Gᵢ] ≤ Gᵢ₊₁
+//! - (Alg. Closure) ∀ p(x) ∈ 𝑆[x] non-constant, ∃ a ∈ 𝑆 | p(a) = 0
+//!
+//! In general, checking the properties of the binary operators at compile time
+//! which are implemented is a challenge.
 //!
 //! ## Hierarchy of Scalar Algebraic Structures
 //!
 //! ```text
-//!                               ┌─────────┐
-//!                               │  Magma  │
-//!                               └────┬────┘
-//!                          ┌─────────┴─────────┐
-//!                 Latin Square Property   Associativity
-//!                 (Unique Solutions)           │
-//!                          │                   │
-//!                     ┌────▼────┐         ┌────▼────┐
-//!                     │Quasigroup│        │Semigroup│
-//!                     └────┬────┘         └────┬────┘
-//!                          │                   │
-//!                     Identity Element    Identity Element
-//!                          │                   │
-//!                     ┌────▼────┐         ┌────▼────┐
-//!                     │  Loop   │         │ Monoid  │
-//!                     └────┬────┘         └────┬────┘
-//!                          │                   │
-//!                     Associativity       Inverses
-//!                          │                   │
-//!                          └───────────┐ ┌─────┘
-//!                                      │ │
-//!                                  ┌───▼─▼───┐
-//!                                  │  Group  │
-//!                                  └────┬────┘
-//!                                       │
-//!                                  Commutativity
-//!                                       │
-//!                             ┌─────────▼─────────┐
-//!                             │ Group (Abelian)   │
-//!                             └─────────┬─────────┘
-//!                                       │
-//!                             Add Second Operation
-//!                                       │
-//!                                  ┌────▼────┐
-//!                                  │Semiring │
-//!                                  └────┬────┘
-//!                                       │
-//!                               Additive Inverses
-//!                                       │
-//!                                  ┌────▼────┐
-//!                                  │  Ring   │
-//!                                  └────┬────┘
-//!                                       │
-//!                        Multiplicative Commutativity
-//!                                       │
-//!                             ┌─────────▼─────────┐
-//!                             │       Ring        │
-//!                             │   (Commutative)   │
-//!                             └─────────┬─────────┘
-//!                                       │
-//!                                No Zero Divisors
-//!                                       │
-//!                             ┌─────────▼─────────┐
-//!                             │ Integral Domain   │
-//!                             └─────────┬─────────┘
-//!                                       │
-//!                               Euclidean Function
-//!                                       │
-//!                             ┌─────────▼─────────┐
-//!                             │ Euclidean Domain  │
-//!                             └─────────┬─────────┘
-//!                                       │
-//!                     Multiplicative Inverses for Non-Zero
-//!                            Distributive Link
-//!                                       │
-//!                                  ┌────▼────┐
-//!                                  │  Field  │
-//!                                  └────┬────┘
-//!                                ┌──────┴──────┐
-//!                                │             │
-//!                           ┌────▼────┐   ┌────▼────┐
-//!                           │ Finite  │   │  Real   │
-//!                           │  Field  │   │  Field  │
-//!                           └─────────┘   └─────────┘
+//!                               ┌─────┐
+//!                               │ Set │
+//!                               └──┬──┘
+//!                                  │
+//!                               ┌──▼──┐
+//!                               │Magma│
+//!                               └──┬──┘
+//!                ┌────────────────┼────────────────┐
+//!                │                │                │
+//!          ┌─────▼─────┐    ┌─────▼─────┐    ┌─────▼─────┐
+//!          │Quasigroup │    │ Semigroup │    │Semilattice│
+//!          └─────┬─────┘    └─────┬─────┘    └───────────┘
+//!                │                │
+//!            ┌───▼───┐        ┌───▼───┐
+//!            │ Loop  │        │Monoid │
+//!            └───┬───┘        └───┬───┘
+//!                │                │
+//!                └────────┐ ┌─────┘
+//!                         │ │
+//!                      ┌──▼─▼──┐
+//!                      │ Group │
+//!                      └───┬───┘
+//!                          │
+//!                 ┌────────▼────────┐
+//!                 │  Abelian Group  │
+//!                 └────────┬────────┘
+//!                          │
+//!                     ┌────▼────┐
+//!                     │Semiring │
+//!                     └────┬────┘
+//!                          │
+//!                     ┌────▼────┐
+//!                     │  Ring   │
+//!                     └────┬────┘
+//!           ┌───────────────────────┐
+//!           │                       │
+//!     ┌─────▼─────┐           ┌─────▼─────┐
+//!     │  Module   │           │Commutative│
+//!     └───────────┘           │   Ring    │
+//!                             └─────┬─────┘
+//!                                   │
+//!                          ┌────────▼────────┐
+//!                          │ Integral Domain │
+//!                          └────────┬────────┘
+//!                                   │
+//!                     ┌─────────────▼─────────────┐
+//!                     │Unique Factorization Domain│
+//!                     └─────────────┬─────────────┘
+//!                                   │
+//!                       ┌───────────▼───────────┐
+//!                       │Principal Ideal Domain │
+//!                       └───────────┬───────────┘
+//!                                   │
+//!                          ┌────────▼────────┐
+//!                          │Euclidean Domain │
+//!                          └────────┬────────┘
+//!                                   │
+//!                               ┌───▼───┐
+//!                               │ Field │────────────────────────┐
+//!                               └───┬───┘                        │
+//!                         ┌─────────┴──────────┐                 │
+//!                         │                    │                 │
+//!                   ┌─────▼─────┐        ┌─────▼─────┐     ┌─────▼─────┐
+//!                   │   Finite  │        │ Infinite  │     │  Vector   │
+//!                   │   Field   │        │   Field   │     │   Space   │
+//!                   └─────┬─────┘        └───────────┘     └───────────┘
+//!                         │
+//!                   ┌─────▼─────┐
+//!                   │   Field   │
+//!                   │ Extension │
+//!                   └─────┬─────┘
+//!                         │
+//!                   ┌─────▼─────┐
+//!                   │ Extension │
+//!                   │   Tower   │
+//!                   └───────────┘
 //! ```
 
 use num_traits::Euclid;
@@ -156,7 +184,7 @@ impl<T> ClosedInv for T where T: Inv<Output = T> {}
 ///
 /// This trait is meant for sets representing numerics like the natural numbers, integers, real numbers, etc.
 /// Represents a mathematical set rather than a broader collection type.
-pub trait Set: Sized + Copy + PartialEq {
+pub trait Set: Sized + Clone + PartialEq {
     /// Checks if the given element is a member of the set.
     fn contains(&self, element: &Self) -> bool;
 }
@@ -191,8 +219,6 @@ pub trait Idempotent {}
 /// # Properties
 /// - Closure: ∀ a, b ∈ Self, a + b ∈ Self
 pub trait AdditiveMagma: Set + ClosedAdd + ClosedAddAssign {}
-
-impl<T> AdditiveMagma for T where T: Set + ClosedAdd + ClosedAddAssign {}
 
 /// Represents an additive quasigroup.
 ///
@@ -397,3 +423,87 @@ pub trait FiniteField: Field {
 pub trait RealField: Field + PartialOrd {}
 
 impl<T> RealField for T where T: Field + PartialOrd {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::borrow::Cow;
+
+    #[derive(Debug, Clone, PartialEq)]
+    struct StringMagma<'a>(Cow<'a, str>);
+
+    impl<'a> Set for StringMagma<'a> {
+        fn contains(&self, _: &Self) -> bool {
+            true // All strings are valid in our magma
+        }
+    }
+
+    impl<'a> Add for StringMagma<'a> {
+        type Output = Self;
+
+        fn add(self, other: Self) -> Self {
+            StringMagma(Cow::Owned(self.0.to_string() + &other.0))
+        }
+    }
+
+    impl<'a> AddAssign for StringMagma<'a> {
+        fn add_assign(&mut self, other: Self) {
+            self.0 = Cow::Owned(self.0.to_string() + &other.0);
+        }
+    }
+
+    impl<'a> AdditiveMagma for StringMagma<'a> {}
+
+    #[test]
+    fn test_magma_closure() {
+        let a = StringMagma(Cow::Borrowed("Hello"));
+        let b = StringMagma(Cow::Borrowed(" World"));
+        let _ = a + b; // This should compile and run without issues
+    }
+
+    #[test]
+    fn test_magma_operation() {
+        let a = StringMagma(Cow::Borrowed("Hello"));
+        let b = StringMagma(Cow::Borrowed(" World"));
+        assert_eq!(a + b, StringMagma(Cow::Borrowed("Hello World")));
+    }
+
+    #[test]
+    fn test_magma_associativity_not_required() {
+        let a = StringMagma(Cow::Borrowed("A"));
+        let b = StringMagma(Cow::Borrowed("B"));
+        let c = StringMagma(Cow::Borrowed("C"));
+
+        // String concatenation is associative, but magmas don't require this property
+        assert_eq!(
+            (a.clone() + b.clone()) + c.clone(),
+            a.clone() + (b.clone() + c.clone())
+        );
+    }
+
+    #[test]
+    fn test_magma_commutativity_not_required() {
+        let a = StringMagma(Cow::Borrowed("Hello"));
+        let b = StringMagma(Cow::Borrowed(" World"));
+
+        assert_ne!(a.clone() + b.clone(), b + a);
+    }
+
+    #[test]
+    fn test_magma_add_assign() {
+        let mut a = StringMagma(Cow::Borrowed("Hello"));
+        let b = StringMagma(Cow::Borrowed(" World"));
+        a += b;
+        assert_eq!(a, StringMagma(Cow::Borrowed("Hello World")));
+    }
+
+    #[test]
+    fn test_magma_with_empty_string() {
+        let a = StringMagma(Cow::Borrowed("Hello"));
+        let e = StringMagma(Cow::Borrowed(""));
+
+        // Empty string acts like an identity, but magmas don't require an identity
+        assert_eq!(a.clone() + e.clone(), a.clone());
+        assert_eq!(e + a.clone(), a);
+    }
+}
