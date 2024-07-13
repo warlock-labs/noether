@@ -32,11 +32,8 @@ pub trait FieldExtensionTower: FieldExtension {
 
     /// Computes the absolute degree of the entire tower extension.
     /// [Fₙ:F₀] = [Fₙ:Fₙ₋₁] · [Fₙ₋₁:Fₙ₋₂] · ... · [F₂:F₁] · [F₁:F₀]
-    fn absolute_degree() -> Option<usize> {
-        self.extension_degrees()
-            .fold(Some(1), |acc, deg| {
-                acc.and_then(|a| deg.map(|d| a * d))
-            })
+    fn absolute_degree(&self) -> Option<usize> {
+        Self::extension_degrees().fold(Some(1), |acc, deg| acc.and_then(|a| deg.map(|d| a * d)))
     }
 
     /// Returns an iterator over the minimal polynomials of each extension in the tower.
@@ -51,22 +48,16 @@ pub trait FieldExtensionTower: FieldExtension {
     fn project_from_top(element: &Self::Level, to_level: usize) -> Option<Self::Level>;
 
     /// Checks if the entire tower consists of normal extensions.
-    fn is_normal() -> bool {
-        self.fields().all(|field| field.is_normal())
-    }
+    fn is_normal(&self) -> bool;
 
     /// Checks if the entire tower consists of separable extensions.
-    fn is_separable() -> bool {
-        self.fields().all(|field| field.is_separable())
-    }
+    fn is_separable(&self) -> bool;
 
     /// Checks if the entire tower consists of algebraic extensions.
-    fn is_algebraic() -> bool {
-        self.fields().all(|field| field.is_algebraic())
-    }
+    fn is_algebraic(&self) -> bool;
 
     /// Checks if the tower is Galois (normal and separable).
-    fn is_galois() -> bool {
+    fn is_galois(&self) -> bool {
         self.is_normal() && self.is_separable()
     }
 

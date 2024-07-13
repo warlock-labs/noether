@@ -14,7 +14,7 @@ use crate::Field;
 /// 4. The additive identity is 0
 /// 5. The multiplicative identity is 1
 /// 6. Every non-zero element has a unique multiplicative inverse
-pub trait FinitePrimeField: Field {
+pub trait FiniteField: Field {
     /// Returns the characteristic of the field, which is the prime number p.
     fn characteristic() -> u64;
 

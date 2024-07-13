@@ -1,5 +1,5 @@
-use crate::EuclideanDomain;
-use crate::{ClosedDiv};
+use crate::ClosedDiv;
+use crate::{ClosedSub, EuclideanDomain};
 
 /// Represents a Field, an algebraic structure that is a Euclidean domain where every non-zero element
 /// has a multiplicative inverse.
@@ -13,5 +13,4 @@ use crate::{ClosedDiv};
 /// 1. (F, +, ·) is a Euclidean domain
 /// 2. Every non-zero element has a multiplicative inverse
 /// 3. 0 ≠ 1 (the additive identity is not equal to the multiplicative identity)
-pub trait Field: EuclideanDomain + ClosedDiv {
-}
+pub trait Field: EuclideanDomain + ClosedDiv + ClosedSub {}

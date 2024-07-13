@@ -99,23 +99,25 @@ mod concrete;
 // Implemented traits
 mod abelian;
 mod commutative_ring;
+mod concrete_finite;
+mod concrete_polynomial;
 mod euclidean_domain;
+mod extension_tower;
 mod field;
 mod field_extension;
 mod finite_field;
 mod group;
-mod real_field;
 mod integral_domain;
 mod magma;
 mod monoid;
 mod operator;
 mod pid;
+mod real_field;
 mod ring;
 mod semigroup;
 mod semiring;
 mod set;
 mod ufd;
-mod extension_tower;
 // Not yet implemented
 // mod alg_loop;
 // mod quasigroup;

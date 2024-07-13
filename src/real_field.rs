@@ -52,4 +52,3 @@ pub trait RealField: Field + PartialOrd + Ord {
     /// Checks if the number is NaN (Not a Number).
     fn is_nan(&self) -> bool;
 }
-

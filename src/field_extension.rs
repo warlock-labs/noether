@@ -1,4 +1,3 @@
-use std::fmt::Debug;
 use crate::Field;
 
 /// Represents a field extension.
