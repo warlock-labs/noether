@@ -1,3 +1,6 @@
+use std::ops::{Add, Mul, Neg};
+use num_traits::{Inv, One, Zero};
+use crate::{Associative, Commutative, Distributive};
 use crate::set::Set;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -76,6 +79,66 @@ impl Set for Z5 {
         true
     }
 }
+
+// Implement necessary traits for Z5
+impl Add for Z5 {
+    type Output = Self;
+    fn add(self, other: Self) -> Self {
+        Z5::new(self.0 + other.0)
+    }
+}
+
+impl Mul for Z5 {
+    type Output = Self;
+    fn mul(self, other: Self) -> Self {
+        Z5::new(self.0 * other.0)
+    }
+}
+
+impl Zero for Z5 {
+    fn zero() -> Self {
+        Z5::new(0)
+    }
+
+    fn is_zero(&self) -> bool {
+        self.0 == 0
+    }
+}
+
+impl One for Z5 {
+    fn one() -> Self {
+        Z5::new(1)
+    }
+}
+
+impl Neg for Z5 {
+    type Output = Self;
+
+    fn neg(self) -> Self {
+        Z5::new(5 - self.0)
+    }
+}
+
+impl Inv for Z5 {
+    type Output = Self;
+
+    fn inv(self) -> Self {
+        match self.0 {
+            1 => Z5::new(1),
+            2 => Z5::new(3),
+            3 => Z5::new(2),
+            4 => Z5::new(4),
+            0 => panic!("Cannot invert zero in Z5"),
+            _ => unreachable!(),
+        }
+    }
+}
+
+impl Associative for Z5 {}
+
+impl Commutative for Z5 {}
+
+impl Distributive for Z5 {}
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct InfiniteRealSet;

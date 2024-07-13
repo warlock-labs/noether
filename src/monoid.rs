@@ -43,44 +43,10 @@ impl<T> MultiplicativeMonoid for T where T: MultiplicativeSemigroup + ClosedOne 
 
 #[cfg(test)]
 mod tests {
-    use std::ops::{Add, Mul};
 
     use crate::concrete::Z5;
-    use crate::{AdditiveMonoid, Associative, MultiplicativeMonoid};
+    use crate::{AdditiveMonoid, MultiplicativeMonoid};
     use num_traits::{One, Zero};
-
-    // Implement necessary traits for Z5
-    impl Add for Z5 {
-        type Output = Self;
-        fn add(self, other: Self) -> Self {
-            Z5::new(self.0 + other.0)
-        }
-    }
-
-    impl Mul for Z5 {
-        type Output = Self;
-        fn mul(self, other: Self) -> Self {
-            Z5::new(self.0 * other.0)
-        }
-    }
-
-    impl Zero for Z5 {
-        fn zero() -> Self {
-            Z5::new(0)
-        }
-
-        fn is_zero(&self) -> bool {
-            self.0 == 0
-        }
-    }
-
-    impl One for Z5 {
-        fn one() -> Self {
-            Z5::new(1)
-        }
-    }
-
-    impl Associative for Z5 {}
 
     #[test]
     fn test_z5_additive_monoid() {

@@ -21,17 +21,17 @@ pub trait AdditiveSemigroup: AdditiveMagma + ClosedAdd + Associative {}
 /// If this trait is implemented, the object implements a Multiplicative Semigroup, an algebraic
 /// structure with a set and an associative closed multiplication operation.
 ///
-/// A multiplicative semigroup (S, *) consists of:
+/// A multiplicative semigroup (S, ∙) consists of:
 /// - A set S
 /// - A binary operation ∙: S × S → S that is associative
 ///
 /// Formal Definition:
-/// Let (S, *) be a multiplicative semigroup. Then:
-/// ∀ a, b, c ∈ S, (a * b) * c = a * (b * c) (associativity)
+/// Let (S, ∙) be a multiplicative semigroup. Then:
+/// ∀ a, b, c ∈ S, (a ∙ b) ∙ c = a ∙ (b ∙ c) (associativity)
 ///
 /// Properties:
-/// - Closure: ∀ a, b ∈ S, a * b ∈ S
-/// - Associativity: ∀ a, b, c ∈ S, (a * b) ∙ c = a * (b * c)
+/// - Closure: ∀ a, b ∈ S, a ∙ b ∈ S
+/// - Associativity: ∀ a, b, c ∈ S, (a ∙ b) ∙ c = a ∙ (b ∙ c)
 pub trait MultiplicativeSemigroup: MultiplicativeMagma + ClosedMul + Associative {}
 
 // Blanket implementations

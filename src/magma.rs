@@ -18,16 +18,16 @@ pub trait AdditiveMagma: Set + ClosedAdd {}
 
 /// Represents a Multiplicative Magma, an algebraic structure with a set and a closed multiplication operation.
 ///
-/// A multiplicative magma (M, *) consists of:
+/// A multiplicative magma (M, ∙) consists of:
 /// - A set M (represented by the Set trait)
-/// - A binary multiplication operation *: M × M → M
+/// - A binary multiplication operation ∙: M ∙ M → M
 ///
 /// Formal Definition:
-/// Let (M, *) be a multiplicative magma. Then:
-/// ∀ a, b ∈ M, a × b ∈ M (closure property)
+/// Let (M, ∙) be a multiplicative magma. Then:
+/// ∀ a, b ∈ M, a ∙ b ∈ M (closure property)
 ///
 /// Properties:
-/// - Closure: For all a and b in M, the result of a * b is also in M.
+/// - Closure: For all a and b in M, the result of a ∙ b is also in M.
 ///
 /// Note: A multiplicative magma does not necessarily satisfy commutativity, associativity, or have an identity element.
 pub trait MultiplicativeMagma: Set + ClosedMul {}

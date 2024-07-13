@@ -11,7 +11,7 @@
 //! structs based on the properties they satisfy, and be applied in most cases for
 //! anything from scalar values to n-dimensional arrays.
 //!
-//! ## Hierarchy of Scalar Algebraic Structures
+//! ## Hierarchy of Algebraic Structures
 //!
 //! ```text
 //!                               ┌─────┐
@@ -130,3 +130,7 @@ pub use magma::*;
 pub use semigroup::*;
 
 pub use monoid::*;
+
+pub use group::*;
+
+pub use abelian::*;
