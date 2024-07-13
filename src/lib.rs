@@ -881,12 +881,11 @@ pub trait Polynomial: Clone + PartialEq + ClosedAdd + ClosedMul + Euclid {
 ///
 /// # Properties
 /// - (M, +) is an abelian group
-/// - Scalar multiplication: R × M → M satisfying:
+/// - Scalar multiplication: R × M → M where a, b ∈ R and x, y ∈ M satisfying:
 ///   1. a(x + y) = ax + ay
 ///   2. (a + b)x = ax + bx
 ///   3. (ab)x = a(bx)
 ///   4. 1x = x
-///   where a, b ∈ R and x, y ∈ M
 pub trait Module: MultiplicativeAbelianGroup {
     type Scalar: Ring;
 
@@ -905,12 +904,11 @@ pub trait Module: MultiplicativeAbelianGroup {
 ///
 /// # Properties
 /// - (V, +) is an abelian group
-/// - Scalar multiplication: F × V → V satisfying:
+/// - Scalar multiplication: F × V → V where a, b ∈ F and u, v ∈ V satisfying:
 ///   1. a(u + v) = au + av
 ///   2. (a + b)v = av + bv
 ///   3. (ab)v = a(bv)
 ///   4. 1v = v
-///   where a, b ∈ F and u, v ∈ V
 pub trait VectorSpace: AdditiveAbelianGroup {
     type Scalar: Field;
 
