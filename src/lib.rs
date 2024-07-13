@@ -161,11 +161,7 @@
 //! still manually implement these traits for your types, and the manual implementations
 //! will take precedence over these blanket implementations.
 
-mod concrete_finite;
-
-pub use concrete_finite::*;
-
-use num_traits::{CheckedEuclid, Euclid, Inv, One, Zero};
+use num_traits::{Euclid, Inv, One, Zero};
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
 };
@@ -252,7 +248,6 @@ pub trait ClosedRemAssign<Rhs = Self>: RemAssign<Rhs> {}
 
 /// Trait for closed remainder assignment operation with the right-hand side as a reference.
 pub trait ClosedRemAssignRef<Rhs = Self>: for<'a> RemAssign<&'a Rhs> {}
-
 
 /// Trait for types with a closed zero value.
 pub trait ClosedZero: Zero {}
@@ -589,9 +584,15 @@ impl<T> MultiplicativeAbelianGroup for T where T: MultiplicativeGroup + Commutat
 /// - Left distributivity: ∀a,b,c ∈ R, a · (b + c) = (a · b) + (a · c)
 /// - Right distributivity: ∀a,b,c ∈ R, (a + b) · c = (a · c) + (b · c)
 /// - Multiplication by 0 annihilates R: ∀a ∈ R, 0 · a = a · 0 = 0
-pub trait Semiring: AdditiveMonoid + CommutativeAddition + MultiplicativeMonoid + DistributiveAddition {}
+pub trait Semiring:
+    AdditiveMonoid + CommutativeAddition + MultiplicativeMonoid + DistributiveAddition
+{
+}
 
-impl<T> Semiring for T where T: AdditiveMonoid + CommutativeAddition + MultiplicativeMonoid + DistributiveAddition {}
+impl<T> Semiring for T where
+    T: AdditiveMonoid + CommutativeAddition + MultiplicativeMonoid + DistributiveAddition
+{
+}
 
 /// Represents a Ring, an algebraic structure with two binary operations (addition and multiplication)
 /// that satisfy certain axioms.
@@ -664,8 +665,7 @@ pub trait IntegralDomain: Ring {
     }
 }
 
-impl<T> IntegralDomain for T where T: Ring {
-}
+impl<T> IntegralDomain for T where T: Ring {}
 
 /// Represents a Unique Factorization Domain (UFD), an integral domain where every non-zero
 /// non-unit element has a unique factorization into irreducible elements.
@@ -817,8 +817,7 @@ pub trait FiniteField: Field {
 /// 3. The order is compatible with field operations
 /// 4. F satisfies the completeness axiom
 /// 5. Dedekind-complete: Every non-empty subset of ℝ with an upper bound has a least upper bound in ℝ
-pub trait RealField: Field + PartialOrd {
-}
+pub trait RealField: Field + PartialOrd {}
 
 /// Represents a Polynomial over a field.
 ///
@@ -1047,7 +1046,9 @@ pub trait FieldExtensionTower: FieldExtension {
     ///
     /// # Formal Notation
     /// For a tower K = F₀ ⊂ F₁ ⊂ ... ⊂ Fₙ = L, yields the minimal polynomials of F₁/F₀, F₂/F₁, ..., Fₙ/Fₙ₋₁
-    fn minimal_polynomials() -> Box<dyn Iterator<Item = Box<dyn Polynomial<Coefficient = Self::BaseField>>>>;
+    //fn minimal_polynomials(
+    //) -> Box<dyn Iterator<Item = Box<dyn Polynomial<Coefficient = Self::BaseField>>>>;
+    // TODO(Better pattern here)
 
     /// Embeds an element from any field in the tower into the top field.
     ///
@@ -1060,30 +1061,6 @@ pub trait FieldExtensionTower: FieldExtension {
     /// # Formal Notation
     /// For an element a ∈ L, attempts to find its preimage in Fᵢ, if it exists
     fn project_from_top(element: &Self::Level, to_level: usize) -> Option<Self::Level>;
-
-    /// Checks if the entire tower consists of normal extensions.
-    ///
-    /// # Formal Notation
-    /// Returns true if each Fᵢ₊₁/Fᵢ is a normal extension
-    fn is_normal() -> bool {
-        Self::fields().all(|field| field.is_normal())
-    }
-
-    /// Checks if the entire tower consists of separable extensions.
-    ///
-    /// # Formal Notation
-    /// Returns true if each Fᵢ₊₁/Fᵢ is a separable extension
-    fn is_separable() -> bool {
-        Self::fields().all(|field| field.is_separable())
-    }
-
-    /// Checks if the entire tower consists of algebraic extensions.
-    ///
-    /// # Formal Notation
-    /// Returns true if each Fᵢ₊₁/Fᵢ is an algebraic extension
-    fn is_algebraic() -> bool {
-        Self::fields().all(|field| field.is_algebraic())
-    }
 
     /// Checks if the tower is Galois (normal and separable).
     ///
