@@ -102,9 +102,6 @@ pub trait Invertible {}
 /// Marker trait for operations with the cancellation property
 pub trait Cancellative: BinaryOp {}
 
-/// Marker trait for operations with the divisibility property
-pub trait Divisible {}
-
 /// Marker trait for regular operations
 pub trait Regular: BinaryOp {}
 
