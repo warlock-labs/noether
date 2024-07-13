@@ -886,7 +886,7 @@ pub trait Polynomial: Clone + PartialEq + ClosedAdd + ClosedMul + Euclid {
 ///   2. (a + b)x = ax + bx
 ///   3. (ab)x = a(bx)
 ///   4. 1x = x
-/// where a, b ∈ R and x, y ∈ M
+///   where a, b ∈ R and x, y ∈ M
 pub trait Module: MultiplicativeAbelianGroup {
     type Scalar: Ring;
 
@@ -910,7 +910,7 @@ pub trait Module: MultiplicativeAbelianGroup {
 ///   2. (a + b)v = av + bv
 ///   3. (ab)v = a(bv)
 ///   4. 1v = v
-/// where a, b ∈ F and u, v ∈ V
+///   where a, b ∈ F and u, v ∈ V
 pub trait VectorSpace: AdditiveAbelianGroup {
     type Scalar: Field;
 
