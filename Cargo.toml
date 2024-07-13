@@ -17,10 +17,3 @@ edition = "2021"
 num-traits = "0.2.19"
 
 [lib]
-
-[dev-dependencies]
-criterion = "0.5.1"
-
-[[bench]]
-name = "benchmarks"
-harness = false
