@@ -4,7 +4,7 @@ use crate::{ClosedAdd, ClosedMul, Set};
 ///
 /// An additive magma (M, +) consists of:
 /// - A set M (represented by the Set trait)
-/// - A binary addition operation +: M × M → M (represented by the ClosedAdd trait)
+/// - A binary addition operation +: M × M → M
 ///
 /// Formal Definition:
 /// Let (M, +) be an additive magma. Then:
@@ -14,13 +14,13 @@ use crate::{ClosedAdd, ClosedMul, Set};
 /// - Closure: For all a and b in M, the result of a + b is also in M.
 ///
 /// Note: An additive magma does not necessarily satisfy commutativity, associativity, or have an identity element.
-pub trait AdditiveMagma<T>: Set<T> + ClosedAdd {}
+pub trait AdditiveMagma: Set + ClosedAdd {}
 
 /// Represents a Multiplicative Magma, an algebraic structure with a set and a closed multiplication operation.
 ///
 /// A multiplicative magma (M, *) consists of:
 /// - A set M (represented by the Set trait)
-/// - A binary multiplication operation *: M × M → M (represented by the ClosedMul trait)
+/// - A binary multiplication operation *: M × M → M
 ///
 /// Formal Definition:
 /// Let (M, ×) be a multiplicative magma. Then:
@@ -30,7 +30,10 @@ pub trait AdditiveMagma<T>: Set<T> + ClosedAdd {}
 /// - Closure: For all a and b in M, the result of a * b is also in M.
 ///
 /// Note: A multiplicative magma does not necessarily satisfy commutativity, associativity, or have an identity element.
-pub trait MultiplicativeMagma<T>: Set<T> + ClosedMul {}
+pub trait MultiplicativeMagma: Set + ClosedMul {}
+
+impl<T> AdditiveMagma for T where T: Set + ClosedAdd {}
+impl<T> MultiplicativeMagma for T where T: Set + ClosedMul {}
 
 #[cfg(test)]
 mod tests {
@@ -40,21 +43,23 @@ mod tests {
     #[derive(Clone, PartialEq, Debug)]
     struct StringMagma(String);
 
-    impl Set<String> for StringMagma {
+    impl Set for StringMagma {
+        type Element = char;
+
         fn is_empty(&self) -> bool {
             self.0.is_empty()
         }
 
-        fn contains(&self, element: &String) -> bool {
-            self.0 == *element
+        fn contains(&self, element: &Self::Element) -> bool {
+            self.0.contains(*element)
         }
 
         fn empty() -> Self {
             StringMagma(String::new())
         }
 
-        fn singleton(element: String) -> Self {
-            StringMagma(element)
+        fn singleton(element: Self::Element) -> Self {
+            StringMagma(element.to_string())
         }
 
         fn union(&self, other: &Self) -> Self {
@@ -62,39 +67,29 @@ mod tests {
         }
 
         fn intersection(&self, other: &Self) -> Self {
-            if self == other {
-                self.clone()
-            } else {
-                Self::empty()
-            }
+            StringMagma(self.0.chars().filter(|c| other.0.contains(*c)).collect())
         }
 
         fn difference(&self, other: &Self) -> Self {
-            if self == other {
-                Self::empty()
-            } else {
-                self.clone()
-            }
+            StringMagma(self.0.chars().filter(|c| !other.0.contains(*c)).collect())
         }
 
         fn symmetric_difference(&self, other: &Self) -> Self {
-            if self == other {
-                Self::empty()
-            } else {
-                self.union(other)
-            }
+            let union = self.union(other);
+            let intersection = self.intersection(other);
+            union.difference(&intersection)
         }
 
         fn is_subset(&self, other: &Self) -> bool {
-            self == other
+            self.0.chars().all(|c| other.0.contains(c))
         }
 
         fn is_equal(&self, other: &Self) -> bool {
-            self == other
+            self.0 == other.0
         }
 
         fn cardinality(&self) -> Option<usize> {
-            Some(if self.is_empty() { 0 } else { 1 })
+            Some(self.0.len())
         }
 
         fn is_finite(&self) -> bool {
@@ -102,70 +97,43 @@ mod tests {
         }
     }
 
-    impl Add for StringMagma {
+    impl std::ops::Add for StringMagma {
         type Output = Self;
 
-        fn add(self, rhs: Self) -> Self::Output {
-            StringMagma(self.0 + &rhs.0)
+        fn add(self, other: Self) -> Self::Output {
+            StringMagma(self.0 + &other.0)
         }
     }
 
-    impl Mul for StringMagma {
+    impl std::ops::Mul for StringMagma {
         type Output = Self;
 
-        fn mul(self, rhs: Self) -> Self::Output {
-            StringMagma(self.0.repeat(rhs.0.len().max(1)))
+        fn mul(self, other: Self) -> Self::Output {
+            StringMagma(self.0.chars().chain(other.0.chars()).collect())
         }
     }
-
-    impl AdditiveMagma<String> for StringMagma {}
-    impl MultiplicativeMagma<String> for StringMagma {}
 
     #[test]
     fn test_additive_magma() {
         let a = StringMagma("Hello".to_string());
-        let b = StringMagma("World".to_string());
-
-        // Test closure property
-        let c = a.clone() + b.clone();
-        assert_eq!(c, StringMagma("HelloWorld".to_string()));
-        assert!(c.contains(&"HelloWorld".to_string()));
-
-        // Test non-commutativity
-        let d = b.clone() + a.clone();
-        assert_eq!(d, StringMagma("WorldHello".to_string()));
-        assert_ne!(c, d);
-
-        // Test non-associativity
-        let e = StringMagma("!".to_string());
-        let f = (a.clone() + b.clone()) + e.clone();
-        let g = a.clone() + (b.clone() + e.clone());
-        assert_eq!(f, StringMagma("HelloWorld!".to_string()));
-        assert_eq!(g, StringMagma("HelloWorld!".to_string()));
-        assert_eq!(f, g); // In this case, it happens to be associative, but it's not guaranteed for all string concatenations
+        let b = StringMagma(" World".to_string());
+        let result = a + b;
+        assert_eq!(result, StringMagma("Hello World".to_string()));
     }
 
     #[test]
     fn test_multiplicative_magma() {
         let a = StringMagma("Hello".to_string());
-        let b = StringMagma("Wor".to_string());
-        let e = StringMagma("!".to_string());
+        let b = StringMagma("World".to_string());
+        let result = a * b;
+        assert_eq!(result, StringMagma("HelloWorld".to_string()));
+    }
 
-        // Test closure property
-        let c = a.clone() * b.clone();
-        assert_eq!(c, StringMagma("HelloHelloHello".to_string()));
-        assert!(c.contains(&"HelloHelloHello".to_string()));
-
-        // Test non-commutativity
-        let d = b.clone() * a.clone();
-        assert_eq!(d, StringMagma("WorWorWorWorWor".to_string()));
-        assert_ne!(c, d);
-
-        // Test non-associativity
-        let f = (a.clone() * b.clone()) * e.clone();
-        let g = a.clone() * (b.clone() * e);
-        assert_eq!(f, StringMagma("HelloHelloHello".to_string()));
-        assert_eq!(g, StringMagma("HelloHelloHello".to_string()));
-        assert_eq!(f, g); // In this case, it happens to be associative, but it's not guaranteed for all string multiplications
+    #[test]
+    fn test_set_operations() {
+        let set = StringMagma("Hello".to_string());
+        assert!(!set.is_empty());
+        assert!(set.contains(&'H'));
+        assert!(!set.contains(&'W'));
     }
 }

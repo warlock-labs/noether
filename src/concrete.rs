@@ -1,7 +1,4 @@
-// concrete.rs
-
 use crate::set::Set;
-use std::ops::{Add, Mul};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct Z5(u8);
@@ -12,36 +9,22 @@ impl Z5 {
     }
 }
 
-impl Add for Z5 {
-    type Output = Self;
+impl Set for Z5 {
+    type Element = Z5;
 
-    fn add(self, rhs: Self) -> Self::Output {
-        Z5::new(self.0 + rhs.0)
-    }
-}
-
-impl Mul for Z5 {
-    type Output = Self;
-
-    fn mul(self, rhs: Self) -> Self::Output {
-        Z5::new(self.0 * rhs.0)
-    }
-}
-
-impl Set<Z5> for Z5 {
     fn is_empty(&self) -> bool {
         false
     }
 
-    fn contains(&self, element: &Z5) -> bool {
-        *self == *element
+    fn contains(&self, element: &Self::Element) -> bool {
+        self == element
     }
 
     fn empty() -> Self {
         Z5(0)
     }
 
-    fn singleton(element: Z5) -> Self {
+    fn singleton(element: Self::Element) -> Self {
         element
     }
 
@@ -86,7 +69,7 @@ impl Set<Z5> for Z5 {
     }
 
     fn cardinality(&self) -> Option<usize> {
-        Some(1)
+        Some(5)
     }
 
     fn is_finite(&self) -> bool {
@@ -97,12 +80,14 @@ impl Set<Z5> for Z5 {
 #[derive(Clone, PartialEq, Debug)]
 pub struct InfiniteRealSet;
 
-impl Set<f64> for InfiniteRealSet {
+impl Set for InfiniteRealSet {
+    type Element = f64;
+
     fn is_empty(&self) -> bool {
         false
     }
 
-    fn contains(&self, _element: &f64) -> bool {
+    fn contains(&self, _element: &Self::Element) -> bool {
         true
     }
 
@@ -110,7 +95,7 @@ impl Set<f64> for InfiniteRealSet {
         InfiniteRealSet
     }
 
-    fn singleton(_element: f64) -> Self {
+    fn singleton(_element: Self::Element) -> Self {
         InfiniteRealSet
     }
 

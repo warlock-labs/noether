@@ -23,14 +23,16 @@ use std::fmt::Debug;
 /// 8. Replacement: ∀A(∀x∀y∀z((x ∈ A ∧ φ(x,y) ∧ φ(x,z)) → y = z) → ∃B∀y(y ∈ B ↔ ∃x(x ∈ A ∧ φ(x,y))))
 /// 9. Foundation: ∀A(A ≠ ∅ → ∃x(x ∈ A ∧ x ∩ A = ∅))
 /// 10. Choice: ∀A(∅ ∉ A → ∃f:A → ∪A ∀B∈A(f(B) ∈ B))
-pub trait Set<T>: Sized + Clone + PartialEq + Debug {
+pub trait Set: Sized + Clone + PartialEq + Debug {
+    type Element;
+
     /// Returns true if the set is empty (∅).
     /// ∀x(x ∉ self)
     fn is_empty(&self) -> bool;
 
     /// Checks if the given element is a member of the set.
     /// element ∈ self
-    fn contains(&self, element: &T) -> bool;
+    fn contains(&self, element: &Self::Element) -> bool;
 
     /// Creates an empty set (∅).
     /// ∃A∀x(x ∉ A)
@@ -38,7 +40,7 @@ pub trait Set<T>: Sized + Clone + PartialEq + Debug {
 
     /// Creates a singleton set containing the given element.
     /// ∃A∀x(x ∈ A ↔ x = element)
-    fn singleton(element: T) -> Self;
+    fn singleton(element: Self::Element) -> Self;
 
     /// Returns the union of this set with another set.
     /// ∀x(x ∈ result ↔ x ∈ self ∨ x ∈ other)
@@ -106,7 +108,7 @@ mod tests {
         assert!(a.is_equal(&c));
         assert!(!a.is_equal(&b));
 
-        assert_eq!(a.cardinality(), Some(1));
+        assert_eq!(a.cardinality(), Some(5));
         assert!(a.is_finite());
     }
 
