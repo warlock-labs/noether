@@ -81,53 +81,56 @@ use std::ops::{
     ShrAssign,
 };
 
+/// A generic trait for binary operations
+pub trait BinaryOp<Rhs = Self>: Sized {
+    type Output;
+    fn apply(&self, lhs: &Self, rhs: &Rhs) -> Self::Output;
+}
+
 /// Marker trait for commutative operations
-pub trait Commutativity {}
+pub trait Commutative: BinaryOp {}
 
 /// Marker trait for associative operations
-pub trait Associativity {}
+pub trait Associative: BinaryOp {}
 
 /// Marker trait for idempotent operations
-pub trait Idempotence {}
+pub trait Idempotent: BinaryOp {}
 
-/// Marker trait for operations with inverses
-pub trait Inverses {}
+/// Marker trait for operations with inverses for all elements
+pub trait Invertible {}
 
 /// Marker trait for operations with the cancellation property
-pub trait Cancellation {}
+pub trait Cancellative: BinaryOp {}
 
 /// Marker trait for operations with the divisibility property
-pub trait Divisibility {}
+pub trait Divisible {}
 
 /// Marker trait for regular operations
-pub trait Regularity {}
+pub trait Regular: BinaryOp {}
 
 /// Marker trait for alternative operations
-pub trait Alternativity {}
+pub trait Alternative: BinaryOp {}
 
 /// Marker trait for distributive operations
-pub trait Distributivity {}
+pub trait Distributive<Op1, Op2> {}
 
 /// Marker trait for operations with the absorption property
-pub trait Absorption {}
+pub trait Absorptive {}
 
 /// Marker trait for monotonic operations
-pub trait Monotonicity {}
+pub trait Monotonic<Order> {}
 
 /// Marker trait for modular operations
-pub trait Modularity {}
+pub trait Modular {}
 
 /// Marker trait for switchable operations
-pub trait Switchability {}
-
-/// Marker trait for min/max operations
-pub trait MinMaxOps {}
+pub trait Switchable {}
 
 /// Marker trait for defect operations
 pub trait DefectOp {}
 
 /// Marker trait for continuous operations
-pub trait Continuity {}
+pub trait Continuous {}
 
 /// Marker trait for solvable operations
 pub trait Solvability {}

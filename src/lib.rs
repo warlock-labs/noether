@@ -143,9 +143,9 @@ impl<T> AdditiveQuasigroup for T where T: AdditiveMagma {}
 ///
 /// # Properties
 /// - Associativity: ∀ a, b, c ∈ Self, (a + b) + c = a + (b + c)
-pub trait AdditiveSemigroup: AdditiveMagma + Associativity {}
+pub trait AdditiveSemigroup: AdditiveMagma + Associative {}
 
-impl<T> AdditiveSemigroup for T where T: AdditiveMagma + Associativity {}
+impl<T> AdditiveSemigroup for T where T: AdditiveMagma + Associative {}
 
 /// Represents an additive quasigroup with an identity element (zero).
 ///
@@ -182,9 +182,9 @@ impl<T> AdditiveGroup for T where T: AdditiveMonoid + AdditiveQuasigroup + Close
 /// # Properties
 /// - All Group properties
 /// - Commutativity: ∀ a, b ∈ Self, a + b = b + a
-pub trait AdditiveAbelianGroup: AdditiveGroup + Commutativity {}
+pub trait AdditiveAbelianGroup: AdditiveGroup + Commutative {}
 
-impl<T> AdditiveAbelianGroup for T where T: AdditiveGroup + Commutativity {}
+impl<T> AdditiveAbelianGroup for T where T: AdditiveGroup + Commutative {}
 
 /// Represents a set with a closed multiplication operation (magma).
 pub trait MultiplicativeMagma: Set + ClosedMul + ClosedMulAssign {}
@@ -200,9 +200,9 @@ pub trait MultiplicativeQuasigroup: MultiplicativeMagma {}
 impl<T> MultiplicativeQuasigroup for T where T: MultiplicativeMagma {}
 
 /// Represents an associative multiplicative magma.
-pub trait MultiplicativeSemigroup: MultiplicativeMagma + Associativity {}
+pub trait MultiplicativeSemigroup: MultiplicativeMagma + Associative {}
 
-impl<T> MultiplicativeSemigroup for T where T: MultiplicativeMagma + Associativity {}
+impl<T> MultiplicativeSemigroup for T where T: MultiplicativeMagma + Associative {}
 
 /// Represents a multiplicative quasigroup with an identity element (one).
 pub trait MultiplicativeLoop: MultiplicativeQuasigroup + ClosedOne {}
@@ -230,9 +230,9 @@ pub trait MultiplicativeGroup: MultiplicativeMonoid + ClosedInv {}
 impl<T> MultiplicativeGroup for T where T: MultiplicativeMonoid + ClosedInv {}
 
 /// Represents a multiplicative abelian (commutative) group.
-pub trait MultiplicativeAbelianGroup: MultiplicativeGroup + Commutativity {}
+pub trait MultiplicativeAbelianGroup: MultiplicativeGroup + Commutative {}
 
-impl<T> MultiplicativeAbelianGroup for T where T: MultiplicativeGroup + Commutativity {}
+impl<T> MultiplicativeAbelianGroup for T where T: MultiplicativeGroup + Commutative {}
 
 /// Represents a semiring.
 ///
