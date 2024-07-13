@@ -121,8 +121,10 @@
 //! - (Min/Max Ops) ∀ a, b ∈ S, a ∨ b = min{a,b}, a ∧ b = max{a,b}
 //! - (Defect Op) ∀ a, b ∈ S, a *₃ b = a + b - 3
 //! - (Continuity) ∀ V ⊆ 𝑆 open, f⁻¹(V) is open (for f: 𝑆 → 𝑆, 𝑆 topological)
+//! ```text
 //! - (Solvability) ∃ series {Gᵢ} | G = G₀ ▷ G₁ ▷ ... ▷ Gₙ = {e}, [Gᵢ, Gᵢ] ≤ Gᵢ₊₁
 //! - (Alg. Closure) ∀ p(x) ∈ 𝑆[x] non-constant, ∃ a ∈ 𝑆 | p(a) = 0
+//! ```
 //!
 //! The traits and blanket implementations provided above serve several important purposes:
 //!
@@ -952,7 +954,9 @@ pub trait FieldExtension: Field + VectorSpace<Scalar = Self::BaseField> {
     /// Returns the degree of the field extension.
     ///
     /// # Formal Notation
+    /// ```text
     /// [L:K] = dim_K(L)
+    /// ```
     fn degree() -> Option<usize>;
 
     /// Embeds an element from the base field into the extension field.
@@ -1033,13 +1037,17 @@ pub trait FieldExtensionTower: FieldExtension {
     /// Returns an iterator over the degrees of each extension in the tower.
     ///
     /// # Formal Notation
+    /// ```text
     /// For a tower K = F₀ ⊂ F₁ ⊂ ... ⊂ Fₙ = L, yields [F₁:F₀], [F₂:F₁], ..., [Fₙ:Fₙ₋₁]
+    /// ```
     fn extension_degrees() -> Box<dyn Iterator<Item = Option<usize>>>;
 
     /// Computes the absolute degree of the entire tower extension.
     ///
     /// # Formal Notation
+    /// ```text
     /// For a tower K = F₀ ⊂ F₁ ⊂ ... ⊂ Fₙ = L, returns [L:K] = [Fₙ:Fₙ₋₁] · [Fₙ₋₁:Fₙ₋₂] · ... · [F₁:F₀]
+    /// ```
     fn absolute_degree() -> Option<usize>;
 
     /// Returns an iterator over the minimal polynomials of each extension in the tower.
