@@ -1,7 +1,11 @@
-use std::ops::{Add, Mul, Neg};
-use num_traits::{Inv, One, Zero};
-use crate::{Associative, Commutative, Distributive};
 use crate::set::Set;
+use crate::{Associative, Commutative, Distributive};
+use num_traits::{Euclid, Inv, One, Zero};
+use std::cmp::Ordering;
+use std::ops::{Add, Div, Mul, Neg, Rem, Sub};
+
+// This is a very sloppy and not optimal implementation of Z5.
+// But seems correct overall.
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct Z5(pub(crate) u8);
@@ -80,18 +84,67 @@ impl Set for Z5 {
     }
 }
 
-// Implement necessary traits for Z5
 impl Add for Z5 {
     type Output = Self;
-    fn add(self, other: Self) -> Self {
-        Z5::new(self.0 + other.0)
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Z5::new((self.0 + rhs.0) % 5)
     }
 }
 
 impl Mul for Z5 {
     type Output = Self;
-    fn mul(self, other: Self) -> Self {
-        Z5::new(self.0 * other.0)
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Z5::new((self.0 * rhs.0) % 5)
+    }
+}
+
+impl Neg for Z5 {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Z5::new(5 - self.0)
+    }
+}
+
+impl Inv for Z5 {
+    type Output = Self;
+
+    fn inv(self) -> Self::Output {
+        if self.0 == 0 {
+            panic!("Cannot invert zero in Z5");
+        }
+        for i in 1..5 {
+            if (self.0 * i) % 5 == 1 {
+                return Z5::new(i);
+            }
+        }
+        unreachable!()
+    }
+}
+
+impl Div for Z5 {
+    type Output = Self;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        self * rhs.inv()
+    }
+}
+
+impl Sub for Z5 {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Z5::new((self.0 + 5 - rhs.0) % 5)
+    }
+}
+
+impl Rem for Z5 {
+    type Output = Self;
+
+    fn rem(self, rhs: Self) -> Self::Output {
+        Z5::new(self.0 % rhs.0)
     }
 }
 
@@ -111,33 +164,46 @@ impl One for Z5 {
     }
 }
 
-impl Neg for Z5 {
-    type Output = Self;
+impl Euclid for Z5 {
+    fn div_euclid(&self, v: &Self) -> Self {
+        if v.is_zero() {
+            panic!("attempt to divide by zero");
+        }
+        let q = (self.0 as i32 * v.inv().0 as i32) % 5;
+        Z5::new(q as u8)
+    }
 
-    fn neg(self) -> Self {
-        Z5::new(5 - self.0)
+    fn rem_euclid(&self, v: &Self) -> Self {
+        if v.is_zero() {
+            panic!("attempt to divide by zero");
+        }
+        let r = self.0 % v.0;
+        Z5::new(r)
     }
 }
 
-impl Inv for Z5 {
-    type Output = Self;
+impl Z5 {
+    pub fn div_rem_euclid(&self, v: &Self) -> (Self, Self) {
+        let q = self.div_euclid(v);
+        let r = *self - q * *v;
+        (q, r)
+    }
+}
 
-    fn inv(self) -> Self {
-        match self.0 {
-            1 => Z5::new(1),
-            2 => Z5::new(3),
-            3 => Z5::new(2),
-            4 => Z5::new(4),
-            0 => panic!("Cannot invert zero in Z5"),
-            _ => unreachable!(),
-        }
+impl PartialOrd for Z5 {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.0.partial_cmp(&other.0)
+    }
+}
+
+impl Ord for Z5 {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.0.cmp(&other.0)
     }
 }
 
 impl Associative for Z5 {}
-
 impl Commutative for Z5 {}
-
 impl Distributive for Z5 {}
 
 #[derive(Clone, PartialEq, Debug)]

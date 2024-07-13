@@ -24,12 +24,11 @@ pub trait Ring: AdditiveAbelianGroup + MultiplicativeMonoid + Distributive {}
 
 impl<T> Ring for T where T: AdditiveAbelianGroup + MultiplicativeMonoid + Distributive {}
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::concrete::Z5;
-    use num_traits::{Zero, One};
+    use num_traits::{One, Zero};
 
     #[test]
     fn test_z5_ring() {

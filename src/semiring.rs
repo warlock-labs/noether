@@ -1,5 +1,4 @@
 use crate::monoid::{AdditiveMonoid, MultiplicativeMonoid};
-use crate::abelian::AdditiveAbelianGroup;
 use crate::Distributive;
 
 /// Represents a Semiring, an algebraic structure with two binary operations (addition and multiplication)
@@ -28,12 +27,11 @@ pub trait Semiring: AdditiveMonoid + MultiplicativeMonoid + Distributive {}
 
 impl<T> Semiring for T where T: AdditiveMonoid + MultiplicativeMonoid + Distributive {}
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::concrete::Z5;
-    use num_traits::{Zero, One};
+    use num_traits::{One, Zero};
 
     #[test]
     fn test_z5_semiring() {

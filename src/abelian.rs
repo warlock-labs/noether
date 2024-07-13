@@ -34,7 +34,7 @@ impl<T> MultiplicativeAbelianGroup for T where T: MultiplicativeGroup + Commutat
 mod tests {
     use super::*;
     use crate::concrete::Z5;
-    use num_traits::{Zero, One, Inv};
+    use num_traits::{Inv, One, Zero};
 
     #[test]
     fn test_z5_additive_abelian_group() {
@@ -79,7 +79,8 @@ mod tests {
     #[test]
     fn test_z5_multiplicative_abelian_group() {
         // Test commutativity
-        for i in 1..5 {  // Skip 0 as it's not part of the multiplicative group
+        for i in 1..5 {
+            // Skip 0 as it's not part of the multiplicative group
             for j in 1..5 {
                 let a = Z5::new(i);
                 let b = Z5::new(j);
