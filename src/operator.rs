@@ -81,41 +81,37 @@ use std::ops::{
     ShrAssign,
 };
 
-/// A generic trait for binary operations
-pub trait BinaryOp<Rhs = Self>: Sized {
-    type Output;
-    fn apply(&self, lhs: &Self, rhs: &Rhs) -> Self::Output;
-}
+// TODO(These marker traits could actually mean something and check things)
 
 /// Marker trait for commutative operations
-pub trait Commutative: BinaryOp {}
+pub trait Commutative {}
 
 /// Marker trait for associative operations
-pub trait Associative: BinaryOp {}
+pub trait Associative {}
 
 /// Marker trait for idempotent operations
-pub trait Idempotent: BinaryOp {}
+pub trait Idempotent {}
 
 /// Marker trait for operations with inverses for all elements
 pub trait Invertible {}
 
 /// Marker trait for operations with the cancellation property
-pub trait Cancellative: BinaryOp {}
+pub trait Cancellative {}
 
 /// Marker trait for regular operations
-pub trait Regular: BinaryOp {}
+pub trait Regular {}
 
 /// Marker trait for alternative operations
-pub trait Alternative: BinaryOp {}
+pub trait Alternative {}
 
 /// Marker trait for distributive operations
-pub trait Distributive<Op1, Op2> {}
+pub trait Distributive {}
 
 /// Marker trait for operations with the absorption property
 pub trait Absorptive {}
 
 /// Marker trait for monotonic operations
-pub trait Monotonic<Order> {}
+pub trait Monotonic {}
 
 /// Marker trait for modular operations
 pub trait Modular {}

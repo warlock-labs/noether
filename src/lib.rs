@@ -92,9 +92,34 @@
 //!                   └───────────┘
 //! ```
 
+// Implemented traits
 mod magma;
+mod monoid;
 mod operator;
+mod semigroup;
 mod set;
+
+// Not yet implemented
+mod abelian;
+mod alg_loop;
+#[cfg(test)]
+mod concrete;
+mod cring;
+mod euclidean_domain;
+mod field;
+mod field_extension;
+mod finite_field;
+mod group;
+mod infinite_field;
+mod integral_domain;
+mod pid;
+mod quasigroup;
+mod ring;
+mod semilattice;
+mod semiring;
+mod uid;
+
+// Library level re-exports
 
 pub use set::*;
 
@@ -102,6 +127,6 @@ pub use operator::*;
 
 pub use magma::*;
 
-// Concrete implementations for tests
-#[cfg(test)]
-pub(crate) mod concrete;
+pub use semigroup::*;
+
+pub use monoid::*;

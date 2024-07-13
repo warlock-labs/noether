@@ -23,6 +23,8 @@ use std::fmt::Debug;
 /// 8. Replacement: ∀A(∀x∀y∀z((x ∈ A ∧ φ(x,y) ∧ φ(x,z)) → y = z) → ∃B∀y(y ∈ B ↔ ∃x(x ∈ A ∧ φ(x,y))))
 /// 9. Foundation: ∀A(A ≠ ∅ → ∃x(x ∈ A ∧ x ∩ A = ∅))
 /// 10. Choice: ∀A(∅ ∉ A → ∃f:A → ∪A ∀B∈A(f(B) ∈ B))
+///
+/// TODO(There is significant reasoning to do here about what might be covered by std traits, partial equivalence relations, etc.)
 pub trait Set: Sized + Clone + PartialEq + Debug {
     type Element;
 

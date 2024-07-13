@@ -1,7 +1,7 @@
 use crate::set::Set;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub struct Z5(u8);
+pub struct Z5(pub(crate) u8);
 
 impl Z5 {
     pub fn new(value: u8) -> Self {

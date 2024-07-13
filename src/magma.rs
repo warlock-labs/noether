@@ -23,7 +23,7 @@ pub trait AdditiveMagma: Set + ClosedAdd {}
 /// - A binary multiplication operation *: M × M → M
 ///
 /// Formal Definition:
-/// Let (M, ×) be a multiplicative magma. Then:
+/// Let (M, *) be a multiplicative magma. Then:
 /// ∀ a, b ∈ M, a × b ∈ M (closure property)
 ///
 /// Properties:
@@ -37,8 +37,9 @@ impl<T> MultiplicativeMagma for T where T: Set + ClosedMul {}
 
 #[cfg(test)]
 mod tests {
+    // Using a string here is an interesting way to test as the elements can form a set.
+    // However, we can make non-associative addition and multiplication operations.
     use super::*;
-    use std::ops::{Add, Mul};
 
     #[derive(Clone, PartialEq, Debug)]
     struct StringMagma(String);
