@@ -139,29 +139,18 @@
 //!    and to enable more generic implementations of algorithms. There is work to be done
 //!    to complete the compile time checks.
 //!
-//! 4. Property Checking: Some marker traits include methods to check if the property holds
-//!    for specific values. While not providing compile-time guarantees, these can be
-//!    useful for testing and runtime verification.
-//!
-//! 5. Automatic Implementation: The blanket implementations ensure that any type satisfying
-//!    the basic requirements automatically implements the corresponding closed trait.
-//!    This reduces boilerplate and makes the traits easier to use.
-//!
-//! 6. Extensibility: New types that implement the standard traits (like `Add`, `Sub`, etc.)
+//! 4. Extensibility: New types that implement the standard traits (like `Add`, `Sub`, etc.)
 //!    will automatically get the closed trait implementations, making the system more
 //!    extensible and future-proof.
 //!
-//! 7. Type Safety: These traits help in catching type-related errors at compile-time,
+//! 5. Type Safety: These traits help in catching type-related errors at compile-time,
 //!    ensuring that operations maintain closure within the same type.
 //!
-//! 8. Generic Programming: These traits enable more expressive generic programming,
+//! 6. Generic Programming: These traits enable more expressive generic programming,
 //!    allowing functions and structs to be generic over types that are closed under
 //!    certain operations or satisfy certain algebraic properties.
 //!
-//! Note that while these blanket implementations cover a wide range of cases, there might
-//! be situations where more specific implementations are needed. In such cases, you can
-//! still manually implement these traits for your types, and the manual implementations
-//! will take precedence over these blanket implementations.
+//! TODO(Replace blanket implementations with derive)
 
 use num_traits::{Euclid, Inv, One, Zero};
 use std::ops::{
