@@ -177,8 +177,7 @@ impl Euclid for Z5 {
         if v.is_zero() {
             panic!("attempt to divide by zero");
         }
-        let r = self.0 % v.0;
-        Z5::new(r)
+        Z5::new(self.0 % v.0)
     }
 }
 

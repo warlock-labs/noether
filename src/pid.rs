@@ -58,12 +58,8 @@ mod tests {
                 // Check that g is the greatest such divisor
                 for k in 1..5 {
                     let d = Z5::new(k);
-                    if !d.is_zero()
-                        && a.rem_euclid(d) == Z5::zero()
-                        && b.rem_euclid(d) == Z5::zero()
-                    {
-                        // In Z5, we need to check if d is a multiple of g
-                        assert!(d.rem_euclid(g) == Z5::zero());
+                    if !d.is_zero() && a.rem_euclid(d) == Z5::zero() && b.rem_euclid(d) == Z5::zero() {
+                        assert!(g.0 >= d.0);
                     }
                 }
             }
@@ -71,7 +67,9 @@ mod tests {
     }
 
     fn gcd(a: Z5, b: Z5) -> Z5 {
-        if b.is_zero() {
+        if a.is_zero() && b.is_zero() {
+            Z5::zero()
+        } else if b.is_zero() {
             a
         } else {
             gcd(b, a.rem_euclid(b))

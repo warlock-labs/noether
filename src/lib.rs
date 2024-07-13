@@ -104,7 +104,7 @@ mod field;
 mod field_extension;
 mod finite_field;
 mod group;
-mod infinite_field;
+mod real_field;
 mod integral_domain;
 mod magma;
 mod monoid;
@@ -115,7 +115,7 @@ mod semigroup;
 mod semiring;
 mod set;
 mod ufd;
-
+mod extension_tower;
 // Not yet implemented
 // mod alg_loop;
 // mod quasigroup;
@@ -150,3 +150,15 @@ pub use integral_domain::*;
 pub use ufd::*;
 
 pub use pid::*;
+
+pub use euclidean_domain::*;
+
+pub use field::*;
+
+pub use real_field::*;
+
+pub use field_extension::*;
+
+pub use finite_field::*;
+
+pub use extension_tower::*;
