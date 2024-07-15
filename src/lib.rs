@@ -5,17 +5,22 @@ use std::ops::{
 
 // TODO(These marker traits could actually mean something and check things)
 
-/// Marker trait for commutative addition
+// Marker traits for algebraic properties
+
+/// Marker trait for commutative addition: a + b = b + a
 pub trait CommutativeAddition {}
 
-/// Marker trait for commutative multiplication
+/// Marker trait for commutative multiplication: a * b = b * a
 pub trait CommutativeMultiplication {}
 
-/// Marker trait for associative addition
+/// Marker trait for associative addition: (a + b) + c = a + (b + c)
 pub trait AssociativeAddition {}
 
-/// Marker trait for associative addition
+/// Marker trait for associative multiplication: (a * b) * c = a * (b * c)
 pub trait AssociativeMultiplication {}
+
+/// Marker trait for distributive multiplication over addition: a * (b + c) = (a * b) + (a * c)
+pub trait DistributiveMultiplication {}
 
 /// Marker trait for distributive operations
 pub trait DistributiveAddition {}
@@ -134,206 +139,173 @@ where
 /// 8. Replacement: ∀A(∀x∀y∀z((x ∈ A ∧ φ(x,y) ∧ φ(x,z)) → y = z) → ∃B∀y(y ∈ B ↔ ∃x(x ∈ A ∧ φ(x,y))))
 /// 9. Foundation: ∀A(A ≠ ∅ → ∃x(x ∈ A ∧ x ∩ A = ∅))
 /// 10. Choice: ∀A(∅ ∉ A → ∃f:A → ∪A ∀B∈A(f(B) ∈ B))
-///
-/// TODO(There is significant reasoning to do here about what might be covered by std traits, partial equivalence relations, etc.)
 pub trait Set: Sized + Clone + PartialEq {}
 
 /// Represents an Additive Magma, an algebraic structure with a set and a closed addition operation.
 ///
+/// # Mathematical Definition
 /// An additive magma (M, +) consists of:
-/// - A set M (represented by the Set trait)
-/// - A binary addition operation +: M × M → M
+/// - A set M
+/// - A binary operation +: M × M → M
 ///
-/// Formal Definition:
+/// # Formal Definition
 /// Let (M, +) be an additive magma. Then:
 /// ∀ a, b ∈ M, a + b ∈ M (closure property)
 ///
-/// Properties:
+/// # Properties
 /// - Closure: For all a and b in M, the result of a + b is also in M.
-///
-/// Note: An additive magma does not necessarily satisfy commutativity, associativity, or have an identity element.
 pub trait AdditiveMagma: Set + ClosedAdd + ClosedAddAssign {}
 
 /// Represents a Multiplicative Magma, an algebraic structure with a set and a closed multiplication operation.
 ///
-/// A multiplicative magma (M, ∙) consists of:
-/// - A set M (represented by the Set trait)
-/// - A binary multiplication operation ∙: M ∙ M → M
+/// # Mathematical Definition
+/// A multiplicative magma (M, *) consists of:
+/// - A set M
+/// - A binary operation *: M × M → M
 ///
-/// Formal Definition:
-/// Let (M, ∙) be a multiplicative magma. Then:
-/// ∀ a, b ∈ M, a ∙ b ∈ M (closure property)
+/// # Formal Definition
+/// Let (M, *) be a multiplicative magma. Then:
+/// ∀ a, b ∈ M, a * b ∈ M (closure property)
 ///
-/// Properties:
-/// - Closure: For all a and b in M, the result of a ∙ b is also in M.
-///
-/// Note: A multiplicative magma does not necessarily satisfy commutativity, associativity, or have an identity element.
+/// # Properties
+/// - Closure: For all a and b in M, the result of a * b is also in M.
 pub trait MultiplicativeMagma: Set + ClosedMul + ClosedMulAssign {}
 
-/// If this trait is implemented, the object implements Additive Semigroup, an
-/// algebraic structure with a set and an associative closed addition operation.
+/// Represents an Additive Semigroup, an algebraic structure with an associative addition operation.
 ///
-/// An additive semigroup (S, +) consists of:
-/// - A set S
-/// - A binary operation +: S × S → S that is associative
+/// # Mathematical Definition
+/// An additive semigroup (S, +) is an additive magma where:
+/// - The operation + is associative
 ///
-/// Formal Definition:
+/// # Formal Definition
 /// Let (S, +) be an additive semigroup. Then:
 /// ∀ a, b, c ∈ S, (a + b) + c = a + (b + c) (associativity)
 ///
-/// Properties:
-/// - Closure: ∀ a, b ∈ S, a + b ∈ S
-/// - Associativity: ∀ a, b, c ∈ S, (a + b) + c = a + (b + c)
+/// # Properties
+/// - Associativity: For all a, b, and c in S, (a + b) + c = a + (b + c)
 pub trait AdditiveSemigroup: AdditiveMagma + AssociativeAddition {}
 
-/// If this trait is implemented, the object implements a Multiplicative Semigroup, an algebraic
-/// structure with a set and an associative closed multiplication operation.
+/// Represents a Multiplicative Semigroup, an algebraic structure with an associative multiplication operation.
 ///
-/// A multiplicative semigroup (S, ∙) consists of:
-/// - A set S
-/// - A binary operation ∙: S × S → S that is associative
+/// # Mathematical Definition
+/// A multiplicative semigroup (S, *) is a multiplicative magma where:
+/// - The operation * is associative
 ///
-/// Formal Definition:
-/// Let (S, ∙) be a multiplicative semigroup. Then:
-/// ∀ a, b, c ∈ S, (a ∙ b) ∙ c = a ∙ (b ∙ c) (associativity)
+/// # Formal Definition
+/// Let (S, *) be a multiplicative semigroup. Then:
+/// ∀ a, b, c ∈ S, (a * b) * c = a * (b * c) (associativity)
 ///
-/// Properties:
-/// - Closure: ∀ a, b ∈ S, a ∙ b ∈ S
-/// - Associativity: ∀ a, b, c ∈ S, (a ∙ b) ∙ c = a ∙ (b ∙ c)
+/// # Properties
+/// - Associativity: For all a, b, and c in S, (a * b) * c = a * (b * c)
 pub trait MultiplicativeSemigroup: MultiplicativeMagma + AssociativeMultiplication {}
 
-/// Represents an Additive Monoid, an algebraic structure with a set, an associative closed addition operation, and an identity element.
+/// Represents an Additive Monoid, an algebraic structure with an associative addition operation and an identity element.
 ///
-/// An additive monoid (M, +, 0) consists of:
-/// - A set M (represented by the Set trait)
-/// - A binary addition operation +: M × M → M that is associative
+/// # Mathematical Definition
+/// An additive monoid (M, +, 0) is an additive semigroup with:
 /// - An identity element 0 ∈ M
 ///
-/// Formal Definition:
+/// # Formal Definition
 /// Let (M, +, 0) be an additive monoid. Then:
 /// 1. ∀ a, b, c ∈ M, (a + b) + c = a + (b + c) (associativity)
 /// 2. ∀ a ∈ M, a + 0 = 0 + a = a (identity)
 ///
-/// Properties:
-/// - Closure: For all a and b in M, the result of a + b is also in M.
-/// - Associativity: For all a, b, and c in M, (a + b) + c = a + (b + c).
-/// - Identity: There exists an element 0 in M such that for every element a in M, a + 0 = 0 + a = a.
+/// # Properties
+/// - Identity: There exists an element 0 in M such that for every element a in M, a + 0 = 0 + a = a
 pub trait AdditiveMonoid: AdditiveSemigroup + ClosedZero {}
 
-/// Represents a Multiplicative Monoid, an algebraic structure with a set, an associative closed multiplication operation, and an identity element.
+/// Represents a Multiplicative Monoid, an algebraic structure with an associative multiplication operation and an identity element.
 ///
-/// A multiplicative monoid (M, ∙, 1) consists of:
-/// - A set M (represented by the Set trait)
-/// - A binary multiplication operation ∙: M × M → M that is associative
+/// # Mathematical Definition
+/// A multiplicative monoid (M, *, 1) is a multiplicative semigroup with:
 /// - An identity element 1 ∈ M
 ///
-/// Formal Definition:
-/// Let (M, ∙, 1) be a multiplicative monoid. Then:
-/// 1. ∀ a, b, c ∈ M, (a ∙ b) ∙ c = a ∙ (b ∙ c) (associativity)
-/// 2. ∀ a ∈ M, a ∙ 1 = 1 ∙ a = a (identity)
+/// # Formal Definition
+/// Let (M, *, 1) be a multiplicative monoid. Then:
+/// 1. ∀ a, b, c ∈ M, (a * b) * c = a * (b * c) (associativity)
+/// 2. ∀ a ∈ M, a * 1 = 1 * a = a (identity)
 ///
-/// Properties:
-/// - Closure: For all a and b in M, the result of a ∙ b is also in M.
-/// - Associativity: For all a, b, and c in M, (a ∙ b) ∙ c = a ∙ (b ∙ c).
-/// - Identity: There exists an element 1 in M such that for every element a in M, a ∙ 1 = 1 ∙ a = a.
+/// # Properties
+/// - Identity: There exists an element 1 in M such that for every element a in M, a * 1 = 1 * a = a
 pub trait MultiplicativeMonoid: MultiplicativeSemigroup + ClosedOne {}
 
-/// Represents an Additive Group, an algebraic structure with a set, an associative closed addition operation,
-/// an identity element, and inverses for all elements.
+/// Represents an Additive Group, an algebraic structure with an associative addition operation, an identity element, and inverses.
 ///
-/// An additive group (G, +) consists of:
-/// - A set G
-/// - A binary operation +: G × G → G that is associative
-/// - An identity element 0 ∈ G
-/// - For each a ∈ G, an inverse element -a ∈ G such that a + (-a) = (-a) + a = 0
+/// # Mathematical Definition
+/// An additive group (G, +, 0) is an additive monoid where:
+/// - Every element has an additive inverse
 ///
-/// Formal Definition:
-/// Let (G, +) be an additive group. Then:
+/// # Formal Definition
+/// Let (G, +, 0) be an additive group. Then:
 /// 1. ∀ a, b, c ∈ G, (a + b) + c = a + (b + c) (associativity)
 /// 2. ∃ 0 ∈ G, ∀ a ∈ G, 0 + a = a + 0 = a (identity)
 /// 3. ∀ a ∈ G, ∃ -a ∈ G, a + (-a) = (-a) + a = 0 (inverse)
-pub trait AdditiveGroup: AdditiveMonoid + ClosedNeg + Sub + SubAssign {}
+///
+/// # Properties
+/// - Inverse: For every element a in G, there exists an element -a in G such that a + (-a) = (-a) + a = 0
+pub trait AdditiveGroup: AdditiveMonoid + ClosedNeg + ClosedSub + ClosedSubAssign {}
 
-/// Represents a Multiplicative Group, an algebraic structure with a set, an associative closed multiplication operation,
-/// an identity element, and inverses for all elements.
+/// Represents a Multiplicative Group, an algebraic structure with an associative multiplication operation, an identity element, and inverses.
 ///
-/// A multiplicative group (G, ∙) consists of:
-/// - A set G
-/// - A binary operation ∙: G × G → G that is associative
-/// - An identity element 1 ∈ G
-/// - For each a ∈ G, an inverse element a⁻¹ ∈ G such that a ∙ a⁻¹ = a⁻¹ ∙ a = 1
+/// # Mathematical Definition
+/// A multiplicative group (G, *, 1) is a multiplicative monoid where:
+/// - Every non-zero element has a multiplicative inverse
 ///
-/// Formal Definition:
-/// Let (G, ∙) be a multiplicative group. Then:
-/// 1. ∀ a, b, c ∈ G, (a ∙ b) ∙ c = a ∙ (b ∙ c) (associativity)
-/// 2. ∃ 1 ∈ G, ∀ a ∈ G, 1 ∙ a = a ∙ 1 = a (identity)
-/// 3. ∀ a ∈ G, ∃ a⁻¹ ∈ G, a ∙ a⁻¹ = a⁻¹ ∙ a = 1 (inverse)
-pub trait MultiplicativeGroup: MultiplicativeMonoid + ClosedInv {}
+/// # Formal Definition
+/// Let (G, *, 1) be a multiplicative group. Then:
+/// 1. ∀ a, b, c ∈ G, (a * b) * c = a * (b * c) (associativity)
+/// 2. ∃ 1 ∈ G, ∀ a ∈ G, 1 * a = a * 1 = a (identity)
+/// 3. ∀ a ∈ G, a ≠ 0, ∃ a^(-1) ∈ G, a * a^(-1) = a^(-1) * a = 1 (inverse)
+///
+/// # Properties
+/// - Inverse: For every non-zero element a in G, there exists an element a^(-1) in G such that a * a^(-1) = a^(-1) * a = 1
+pub trait MultiplicativeGroup:
+    MultiplicativeMonoid + ClosedInv + ClosedDiv + ClosedDivAssign
+{
+}
 
 /// Represents an Additive Abelian Group, an algebraic structure with a commutative addition operation.
 ///
-/// An additive abelian group (G, +) is an additive group that also satisfies:
-/// - Commutativity: ∀ a, b ∈ G, a + b = b + a
+/// # Mathematical Definition
+/// An additive abelian group is an additive group where:
+/// - The addition operation is commutative
 ///
-/// Formal Definition:
-/// Let (G, +) be an additive abelian group. Then:
+/// # Formal Definition
+/// Let (G, +, 0) be an additive abelian group. Then:
 /// 1. ∀ a, b, c ∈ G, (a + b) + c = a + (b + c) (associativity)
 /// 2. ∃ 0 ∈ G, ∀ a ∈ G, 0 + a = a + 0 = a (identity)
 /// 3. ∀ a ∈ G, ∃ -a ∈ G, a + (-a) = (-a) + a = 0 (inverse)
 /// 4. ∀ a, b ∈ G, a + b = b + a (commutativity)
+///
+/// # Properties
+/// - Commutativity: For all a and b in G, a + b = b + a
 pub trait AdditiveAbelianGroup: AdditiveGroup + CommutativeAddition {}
 
 /// Represents a Multiplicative Abelian Group, an algebraic structure with a commutative multiplication operation.
 ///
-/// A multiplicative abelian group (G, ∙) is a multiplicative group that also satisfies:
-/// - Commutativity: ∀ a, b ∈ G, a ∙ b = b ∙ a
-///
-/// Formal Definition:
-/// Let (G, ∙) be a multiplicative abelian group. Then:
-/// 1. ∀ a, b, c ∈ G, (a ∙ b) ∙ c = a ∙ (b ∙ c) (associativity)
-/// 2. ∃ 1 ∈ G, ∀ a ∈ G, 1 ∙ a = a ∙ 1 = a (identity)
-/// 3. ∀ a ∈ G, ∃ a⁻¹ ∈ G, a ∙ a⁻¹ = a⁻¹ ∙ a = 1 (inverse)
-/// 4. ∀ a, b ∈ G, a ∙ b = b ∙ a (commutativity)
-pub trait MultiplicativeAbelianGroup: MultiplicativeGroup + CommutativeMultiplication {}
-
-/// Represents a Semiring, a set with two associative binary operations (addition and multiplication).
+/// # Mathematical Definition
+/// A multiplicative abelian group is a multiplicative group where:
+/// - The multiplication operation is commutative
 ///
 /// # Formal Definition
-/// A semiring (R, +, ·, 0, 1) is a set R equipped with two binary operations + and · such that:
-/// - (R, +, 0) is a commutative monoid
-/// - (R, ·, 1) is a monoid
-/// - Multiplication distributes over addition
-/// - Multiplication by 0 annihilates R
+/// Let (G, *, 1) be a multiplicative abelian group. Then:
+/// 1. ∀ a, b, c ∈ G, (a * b) * c = a * (b * c) (associativity)
+/// 2. ∃ 1 ∈ G, ∀ a ∈ G, 1 * a = a * 1 = a (identity)
+/// 3. ∀ a ∈ G, a ≠ 0, ∃ a^(-1) ∈ G, a * a^(-1) = a^(-1) * a = 1 (inverse)
+/// 4. ∀ a, b ∈ G, a * b = b * a (commutativity)
 ///
 /// # Properties
-/// - Additive closure: ∀a,b ∈ R, a + b ∈ R
-/// - Multiplicative closure: ∀a,b ∈ R, a · b ∈ R
-/// - Additive associativity: ∀a,b,c ∈ R, (a + b) + c = a + (b + c)
-/// - Multiplicative associativity: ∀a,b,c ∈ R, (a · b) · c = a · (b · c)
-/// - Additive commutativity: ∀a,b ∈ R, a + b = b + a
-/// - Additive identity: ∃0 ∈ R, ∀a ∈ R, a + 0 = 0 + a = a
-/// - Multiplicative identity: ∃1 ∈ R, ∀a ∈ R, 1 · a = a · 1 = a
-/// - Left distributivity: ∀a,b,c ∈ R, a · (b + c) = (a · b) + (a · c)
-/// - Right distributivity: ∀a,b,c ∈ R, (a + b) · c = (a · c) + (b · c)
-/// - Multiplication by 0 annihilates R: ∀a ∈ R, 0 · a = a · 0 = 0
-pub trait Semiring:
-    AdditiveMonoid + CommutativeAddition + MultiplicativeMonoid + DistributiveAddition
-{
-}
+/// - Commutativity: For all a and b in G, a * b = b * a
+pub trait MultiplicativeAbelianGroup: MultiplicativeGroup + CommutativeMultiplication {}
 
-impl<T> Semiring for T where
-    T: AdditiveMonoid + CommutativeAddition + MultiplicativeMonoid + DistributiveAddition
-{
-}
-
-/// Represents a Ring, an algebraic structure with two binary operations (addition and multiplication)
-/// that satisfy certain axioms.
+/// Represents a Ring, an algebraic structure with two binary operations (addition and multiplication) that satisfy certain axioms.
 ///
+/// # Mathematical Definition
 /// A ring (R, +, ·) consists of:
 /// - A set R
 /// - Two binary operations + (addition) and · (multiplication) on R
 ///
-/// Formal Definition:
+/// # Formal Definition
 /// Let (R, +, ·) be a ring. Then:
 /// 1. (R, +) is an abelian group:
 ///    a. ∀ a, b, c ∈ R, (a + b) + c = a + (b + c) (associativity)
@@ -346,14 +318,15 @@ impl<T> Semiring for T where
 /// 3. Multiplication is distributive over addition:
 ///    a. ∀ a, b, c ∈ R, a · (b + c) = (a · b) + (a · c) (left distributivity)
 ///    b. ∀ a, b, c ∈ R, (a + b) · c = (a · c) + (b · c) (right distributivity)
-pub trait Ring: AdditiveAbelianGroup + MultiplicativeMonoid + DistributiveAddition {}
+pub trait Ring: AdditiveAbelianGroup + MultiplicativeMonoid + DistributiveMultiplication {}
 
 /// Represents a Commutative Ring, an algebraic structure where multiplication is commutative.
 ///
-/// A commutative ring (R, +, ·) is a ring that also satisfies:
-/// - Commutativity of multiplication: ∀ a, b ∈ R, a · b = b · a
+/// # Mathematical Definition
+/// A commutative ring (R, +, ·) is a ring where:
+/// - The multiplication operation is commutative
 ///
-/// Formal Definition:
+/// # Formal Definition
 /// Let (R, +, ·) be a commutative ring. Then:
 /// 1. (R, +, ·) is a ring
 /// 2. ∀ a, b ∈ R, a · b = b · a (commutativity of multiplication)
@@ -361,28 +334,28 @@ pub trait CommutativeRing: Ring + CommutativeMultiplication {}
 
 /// Represents an Integral Domain, a commutative ring with no zero divisors.
 ///
-/// An integral domain (D, +, ·) consists of:
-/// - A set D
-/// - Two binary operations + (addition) and · (multiplication) on D
-/// - Two distinguished elements 0 (zero) and 1 (unity) of D
+/// # Mathematical Definition
+/// An integral domain (D, +, ·) is a commutative ring where:
+/// - The ring has no zero divisors
 ///
-/// Formal Definition:
+/// # Formal Definition
 /// Let (D, +, ·) be an integral domain. Then:
 /// 1. (D, +, ·) is a commutative ring
 /// 2. D has no zero divisors:
 ///    ∀ a, b ∈ D, if a · b = 0, then a = 0 or b = 0
 /// 3. The zero element is distinct from the unity:
 ///    0 ≠ 1
-pub trait IntegralDomain: Ring {}
+pub trait IntegralDomain: CommutativeRing {}
 
 /// Represents a Unique Factorization Domain (UFD), an integral domain where every non-zero
 /// non-unit element has a unique factorization into irreducible elements.
 ///
+/// # Mathematical Definition
 /// A UFD (R, +, ·) is an integral domain that satisfies:
 /// 1. Every non-zero non-unit element can be factored into irreducible elements.
 /// 2. This factorization is unique up to order and associates.
 ///
-/// Formal Definition:
+/// # Formal Definition
 /// Let R be an integral domain. R is a UFD if:
 /// 1. For every non-zero non-unit a ∈ R, there exist irreducible elements p₁, ..., pₙ such that
 ///    a = p₁ · ... · pₙ
@@ -393,111 +366,92 @@ pub trait UniqueFactorizationDomain: IntegralDomain {}
 
 /// Represents a Principal Ideal Domain (PID), an integral domain where every ideal is principal.
 ///
-/// A Principal Ideal Domain (R, +, ·) is an integral domain that satisfies:
-/// 1. (R, +, ·) is an integral domain
-/// 2. Every ideal in R is principal (can be generated by a single element)
+/// # Mathematical Definition
+/// A Principal Ideal Domain (R, +, ·) is an integral domain where:
+/// - Every ideal in R is principal (can be generated by a single element)
 ///
-/// Formal Definition:
+/// # Formal Definition
 /// Let R be an integral domain. R is a PID if for every ideal I ⊆ R, there exists an element a ∈ R
 /// such that I = (a) = {ra | r ∈ R}.
 pub trait PrincipalIdealDomain: UniqueFactorizationDomain {}
 
 /// Represents a Euclidean Domain, an integral domain with a Euclidean function.
 ///
+/// # Mathematical Definition
 /// A Euclidean Domain (R, +, ·, φ) is a principal ideal domain equipped with a
 /// Euclidean function φ: R\{0} → ℕ₀ that satisfies certain properties.
 ///
-/// Formal Definition:
+/// # Formal Definition
 /// Let (R, +, ·) be an integral domain and φ: R\{0} → ℕ₀ a function. R is a Euclidean domain if:
 /// 1. ∀a, b ∈ R, b ≠ 0, ∃!q, r ∈ R : a = bq + r ∧ (r = 0 ∨ φ(r) < φ(b)) (Division with Remainder)
 /// 2. ∀a, b ∈ R\{0} : φ(a) ≤ φ(ab) (Multiplicative Property)
 pub trait EuclideanDomain: PrincipalIdealDomain + Euclid {}
 
-/// Represents a Field, an algebraic structure that is a Euclidean domain where every non-zero element
-/// has a multiplicative inverse.
+/// Represents a Field, a commutative ring where every non-zero element has a multiplicative inverse.
 ///
-/// A field (F, +, ·) consists of:
-/// - A set F
-/// - Two binary operations + (addition) and · (multiplication) on F
+/// # Mathematical Definition
+/// A field (F, +, ·) is a commutative ring where:
+/// - Every non-zero element has a multiplicative inverse
 ///
-/// Formal Definition:
+/// # Formal Definition
 /// Let (F, +, ·) be a field. Then:
-/// 1. (F, +, ·) is a Euclidean domain
-/// 2. Every non-zero element has a multiplicative inverse
-/// 3. 0 ≠ 1 (the additive identity is not equal to the multiplicative identity)
-pub trait Field: EuclideanDomain + ClosedDiv + ClosedDivAssign {}
+/// 1. (F, +, ·) is a commutative ring
+/// 2. ∀ a ∈ F, a ≠ 0, ∃ a⁻¹ ∈ F, a · a⁻¹ = a⁻¹ · a = 1 (multiplicative inverse)
+pub trait Field: EuclideanDomain + MultiplicativeAbelianGroup {}
 
-/// Represents a Finite Prime Field, a field with a finite number of elements where the number of elements is prime.
+/// Represents a Finite Field, a field with a finite number of elements.
 ///
-/// A finite prime field ℤ/pℤ (also denoted as 𝔽_p or GF(p)) consists of:
-/// - A set of p elements {0, 1, 2, ..., p-1}, where p is prime
-/// - Addition and multiplication operations modulo p
+/// # Mathematical Definition
+/// A finite field is a field with a finite number of elements.
 ///
-/// Formal Definition:
-/// Let p be a prime number. Then:
-/// 1. The set is {0, 1, 2, ..., p-1}
-/// 2. Addition: a +_p b = (a + b) mod p
-/// 3. Multiplication: a ·_p b = (a · b) mod p
-/// 4. The additive identity is 0
-/// 5. The multiplicative identity is 1
-/// 6. Every non-zero element has a unique multiplicative inverse
+/// # Properties
+/// - The number of elements is always a prime power p^n
 pub trait FiniteField: Field {
-    // Returns the characteristic of the field.
-    ///
-    /// # Formal Notation
-    /// The smallest positive integer n such that n · 1 = 0, where 1 is the multiplicative identity
+    /// Returns the characteristic of the field.
     fn characteristic() -> u64;
 
-    /// Returns the order (number of elements) of the finite field.
-    ///
-    /// # Formal Notation
-    /// |F| = p^n, where p is the characteristic of F and n is its degree over the prime subfield
+    /// Returns the number of elements in the field.
     fn order() -> u64;
+
+    /// Returns a generator of the multiplicative group of the field.
+    fn generator() -> Self;
 }
 
-/// Represents a Real Field, an ordered field that satisfies the completeness axiom.
+/// Represents an Ordered Field, a field with a total order compatible with its operations.
 ///
-/// A real field (F, +, ·, ≤) consists of:
-/// - A set F
-/// - Two binary operations + (addition) and · (multiplication)
-/// - A total order relation ≤
+/// # Mathematical Definition
+/// An ordered field is a field equipped with a total order ≤ where:
+/// - If a ≤ b then a + c ≤ b + c for all c
+/// - If 0 ≤ a and 0 ≤ b then 0 ≤ a · b
+pub trait OrderedField: Field + PartialOrd {}
+
+/// Represents a Real Field, a complete ordered field.
 ///
-/// Formal Definition:
-/// 1. (F, +, ·) is a field
-/// 2. (F, ≤) is a totally ordered set
-/// 3. The order is compatible with field operations
-/// 4. F satisfies the completeness axiom
-/// 5. Dedekind-complete: Every non-empty subset of ℝ with an upper bound has a least upper bound in ℝ
-pub trait RealField: Field + PartialOrd {}
+/// # Mathematical Definition
+/// A real field is an ordered field that is Dedekind-complete:
+/// - Every non-empty subset with an upper bound has a least upper bound
+pub trait RealField: OrderedField {}
 
 /// Represents a Polynomial over a field.
 ///
-/// # Formal Definition
+/// # Mathematical Definition
 /// A polynomial over a field F is an expression of the form:
 /// a_n * X^n + a_{n-1} * X^{n-1} + ... + a_1 * X + a_0
-/// where a_i ∈ F are called the coefficients, and X is called the indeterminate.
-pub trait Polynomial: Clone + PartialEq + ClosedAdd + ClosedMul + Euclid {}
+/// where a_i ∈ F are called the coefficients, and X is the indeterminate.
+pub trait Polynomial: Clone + PartialEq + ClosedAdd + ClosedMul + Euclid {
+    /// The type of the coefficients of the polynomial.
+    type Coefficient: Field;
 
-/// Represents a Module over a ring.
-///
-/// # Formal Definition
-/// A module M over a ring R is an abelian group (M, +) equipped with a scalar multiplication
-/// by elements of R, satisfying certain axioms.
-///
-/// # Properties
-/// - (M, +) is an abelian group
-/// - Scalar multiplication: R × M → M where a, b ∈ R and x, y ∈ M satisfying:
-///   1. a(x + y) = ax + ay
-///   2. (a + b)x = ax + bx
-///   3. (ab)x = a(bx)
-///   4. 1x = x
-pub trait Module: MultiplicativeAbelianGroup {
-    type Scalar: Ring;
+    /// Returns the degree of the polynomial.
+    fn degree(&self) -> usize;
+
+    /// Gets the coefficient of the term with the given degree.
+    fn coefficient(&self, degree: usize) -> Self::Coefficient;
 }
 
 /// Represents a Vector Space over a field.
 ///
-/// # Formal Definition
+/// # Mathematical Definition
 /// A vector space V over a field F is an abelian group (V, +) equipped with scalar multiplication
 /// by elements of F, satisfying certain axioms.
 ///
@@ -509,12 +463,19 @@ pub trait Module: MultiplicativeAbelianGroup {
 ///   3. (ab)v = a(bv)
 ///   4. 1v = v
 pub trait VectorSpace: AdditiveAbelianGroup {
+    /// The scalar field over which this vector space is defined.
     type Scalar: Field;
+
+    /// Performs scalar multiplication.
+    fn scale(&self, scalar: &Self::Scalar) -> Self;
+
+    /// Returns the dimension of the vector space, if it's finite-dimensional.
+    fn dimension(&self) -> Option<usize>;
 }
 
 /// Represents a Field Extension.
 ///
-/// # Formal Definition
+/// # Mathematical Definition
 /// A field extension L/K is a field L that contains K as a subfield.
 ///
 /// # Properties
@@ -522,12 +483,22 @@ pub trait VectorSpace: AdditiveAbelianGroup {
 /// - K is a subfield of L
 /// - L is a vector space over K
 pub trait FieldExtension: Field + VectorSpace<Scalar = Self::BaseField> {
+    /// The base field of this extension.
     type BaseField: Field;
+
+    /// Returns the degree of the field extension.
+    fn degree() -> usize;
+
+    /// Computes the trace of an element.
+    fn trace(&self) -> Self::BaseField;
+
+    /// Computes the norm of an element.
+    fn norm(&self) -> Self::BaseField;
 }
 
 /// Represents a Tower of Field Extensions.
 ///
-/// # Formal Definition
+/// # Mathematical Definition
 /// A tower of field extensions is a sequence of fields K = F₀ ⊂ F₁ ⊂ ... ⊂ Fₙ = L
 /// where each Fᵢ₊₁/Fᵢ is a field extension.
 ///
@@ -535,4 +506,116 @@ pub trait FieldExtension: Field + VectorSpace<Scalar = Self::BaseField> {
 /// - Each level is a field extension of the previous level
 /// - The composition of the extensions forms the overall extension L/K
 /// - The degree of L/K is the product of the degrees of each extension in the tower
-pub trait FieldExtensionTower: FieldExtension {}
+pub trait FieldExtensionTower: FieldExtension {
+    /// Returns the number of extensions in the tower.
+    fn tower_height() -> usize;
+
+    /// Returns the degree of the i-th extension in the tower.
+    fn extension_degree(i: usize) -> usize;
+}
+
+// Blanket implementations for basic operation traits
+impl<T: Add<Output = T>> ClosedAdd for T {}
+impl<T: for<'a> Add<&'a T, Output = T>> ClosedAddRef for T {}
+impl<T: Sub<Output = T>> ClosedSub for T {}
+impl<T: for<'a> Sub<&'a T, Output = T>> ClosedSubRef for T {}
+impl<T: Mul<Output = T>> ClosedMul for T {}
+impl<T: for<'a> Mul<&'a T, Output = T>> ClosedMulRef for T {}
+impl<T: Div<Output = T>> ClosedDiv for T {}
+impl<T: for<'a> Div<&'a T, Output = T>> ClosedDivRef for T {}
+impl<T: Rem<Output = T>> ClosedRem for T {}
+impl<T: for<'a> Rem<&'a T, Output = T>> ClosedRemRef for T {}
+impl<T: Neg<Output = T>> ClosedNeg for T {}
+impl<T: Inv<Output = T>> ClosedInv for T {}
+
+// Blanket implementations for assignment operation traits
+impl<T: AddAssign> ClosedAddAssign for T {}
+impl<T: for<'a> AddAssign<&'a T>> ClosedAddAssignRef for T {}
+impl<T: SubAssign> ClosedSubAssign for T {}
+impl<T: for<'a> SubAssign<&'a T>> ClosedSubAssignRef for T {}
+impl<T: MulAssign> ClosedMulAssign for T {}
+impl<T: for<'a> MulAssign<&'a T>> ClosedMulAssignRef for T {}
+impl<T: DivAssign> ClosedDivAssign for T {}
+impl<T: for<'a> DivAssign<&'a T>> ClosedDivAssignRef for T {}
+impl<T: RemAssign> ClosedRemAssign for T {}
+impl<T: for<'a> RemAssign<&'a T>> ClosedRemAssignRef for T {}
+
+// Blanket implementations for zero and one
+impl<T: Zero> ClosedZero for T {}
+impl<T: One> ClosedOne for T {}
+
+// Set
+impl<T: Clone + PartialEq> Set for T {}
+
+// AdditiveMagma
+impl<T: Set + ClosedAdd + ClosedAddAssign> AdditiveMagma for T {}
+
+// MultiplicativeMagma
+impl<T: Set + ClosedMul + ClosedMulAssign> MultiplicativeMagma for T {}
+
+// AdditiveSemigroup
+impl<T: AdditiveMagma + AssociativeAddition> AdditiveSemigroup for T {}
+
+// MultiplicativeSemigroup
+impl<T: MultiplicativeMagma + AssociativeMultiplication> MultiplicativeSemigroup for T {}
+
+// AdditiveMonoid
+impl<T: AdditiveSemigroup + ClosedZero> AdditiveMonoid for T {}
+
+// MultiplicativeMonoid
+impl<T: MultiplicativeSemigroup + ClosedOne> MultiplicativeMonoid for T {}
+
+// AdditiveGroup
+impl<T: AdditiveMonoid + ClosedNeg + ClosedSub + ClosedSubAssign> AdditiveGroup for T {}
+
+// MultiplicativeGroup
+impl<T: MultiplicativeMonoid + ClosedInv + ClosedDiv + ClosedDivAssign> MultiplicativeGroup for T {}
+
+// AdditiveAbelianGroup
+impl<T: AdditiveGroup + CommutativeAddition> AdditiveAbelianGroup for T {}
+
+// MultiplicativeAbelianGroup
+impl<T: MultiplicativeGroup + CommutativeMultiplication> MultiplicativeAbelianGroup for T {}
+
+// Ring
+impl<T: AdditiveAbelianGroup + MultiplicativeMonoid + DistributiveMultiplication> Ring for T {}
+
+// CommutativeRing
+impl<T: Ring + CommutativeMultiplication> CommutativeRing for T {}
+
+// IntegralDomain
+// Note: This is a simplified implementation. In practice, you'd need to check for zero divisors.
+impl<T: CommutativeRing> IntegralDomain for T {}
+
+// UniqueFactorizationDomain
+impl<T: IntegralDomain> UniqueFactorizationDomain for T {}
+
+// PrincipalIdealDomain
+impl<T: UniqueFactorizationDomain> PrincipalIdealDomain for T {}
+
+// EuclideanDomain
+impl<T: PrincipalIdealDomain + Euclid> EuclideanDomain for T {}
+
+// Field
+impl<T: EuclideanDomain + MultiplicativeAbelianGroup> Field for T {}
+
+// FiniteField
+// Note: This cannot be implemented as a blanket impl because it requires specific knowledge about the field's finiteness
+
+// OrderedField
+impl<T: Field + PartialOrd> OrderedField for T {}
+
+// RealField
+// Note: This cannot be implemented as a blanket impl because it requires knowledge about completeness
+
+// Polynomial
+// Note: This cannot be implemented as a blanket impl because it requires specific polynomial representation
+
+// VectorSpace
+// Note: This cannot be implemented as a blanket impl because it requires specific vector space structure
+
+// FieldExtension
+// Note: This cannot be implemented as a blanket impl because it requires specific knowledge about the base field and extension structure
+
+// FieldExtensionTower
+// Note: This cannot be implemented as a blanket impl because it requires specific knowledge about the tower structure
