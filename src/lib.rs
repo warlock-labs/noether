@@ -20,10 +20,7 @@ pub trait AssociativeAddition {}
 pub trait AssociativeMultiplication {}
 
 /// Marker trait for distributive multiplication over addition: a * (b + c) = (a * b) + (a * c)
-pub trait DistributiveMultiplication {}
-
-/// Marker trait for distributive operations
-pub trait DistributiveAddition {}
+pub trait Distributive {}
 
 /// Trait for closed addition operation.
 pub trait ClosedAdd<Rhs = Self>: Add<Rhs, Output = Self> {}
@@ -318,7 +315,7 @@ pub trait MultiplicativeAbelianGroup: MultiplicativeGroup + CommutativeMultiplic
 /// 3. Multiplication is distributive over addition:
 ///    a. ∀ a, b, c ∈ R, a · (b + c) = (a · b) + (a · c) (left distributivity)
 ///    b. ∀ a, b, c ∈ R, (a + b) · c = (a · c) + (b · c) (right distributivity)
-pub trait Ring: AdditiveAbelianGroup + MultiplicativeMonoid + DistributiveMultiplication {}
+pub trait Ring: AdditiveAbelianGroup + MultiplicativeMonoid + Distributive {}
 
 /// Represents a Commutative Ring, an algebraic structure where multiplication is commutative.
 ///
@@ -578,7 +575,7 @@ impl<T: AdditiveGroup + CommutativeAddition> AdditiveAbelianGroup for T {}
 impl<T: MultiplicativeGroup + CommutativeMultiplication> MultiplicativeAbelianGroup for T {}
 
 // Ring
-impl<T: AdditiveAbelianGroup + MultiplicativeMonoid + DistributiveMultiplication> Ring for T {}
+impl<T: AdditiveAbelianGroup + MultiplicativeMonoid + Distributive> Ring for T {}
 
 // CommutativeRing
 impl<T: Ring + CommutativeMultiplication> CommutativeRing for T {}

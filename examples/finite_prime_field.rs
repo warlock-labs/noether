@@ -1,6 +1,6 @@
 use noether::{
     AssociativeAddition, AssociativeMultiplication, CommutativeAddition, CommutativeMultiplication,
-    DistributiveAddition, DistributiveMultiplication, FiniteField,
+    Distributive, FiniteField,
 };
 use num_traits::{Euclid, Inv, One, Zero};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, Sub, SubAssign};
@@ -8,8 +8,9 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, Sub, Su
 /// The trait hierarchy in Noether is useful for verifying the correct and idiomatic implementation
 /// of algebraic structures in rust.
 ///
-/// We take here, as an example, the implementation of a finite field.
-
+/// We take here, as an example, the skeleton implementation of a finite field.
+/// Where `L` number of words and `D` number of words are used to represent the field.
+/// The modulus is the order of the field, which would be prime.
 #[derive(Clone, Copy, Debug)]
 pub struct FinitePrimeField<const L: usize, const D: usize> {
     modulus: [u64; L],
@@ -171,10 +172,7 @@ impl<const L: usize, const D: usize> AssociativeAddition for FinitePrimeField<L,
 impl<const L: usize, const D: usize> AssociativeMultiplication for FinitePrimeField<L, D> {}
 
 /// Marker trait for distributive multiplication over addition: a * (b + c) = (a * b) + (a * c)
-impl<const L: usize, const D: usize> DistributiveMultiplication for FinitePrimeField<L, D> {}
-
-/// Marker trait for distributive operations
-impl<const L: usize, const D: usize> DistributiveAddition for FinitePrimeField<L, D> {}
+impl<const L: usize, const D: usize> Distributive for FinitePrimeField<L, D> {}
 
 impl<const L: usize, const D: usize> FiniteField for FinitePrimeField<L, D> {
     fn characteristic() -> u64 {
