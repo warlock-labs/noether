@@ -3,6 +3,13 @@ use std::ops::{
     Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
 };
 
+// A note on the reasons why certain traits are used:
+//
+// The `Inv` trait is the multiplicative inverse operation.
+// The `One` trait is the multiplicative identity operation.
+// The `Zero` trait is the additive identity operation.
+// The `Neg` trait is the additive inverse operation.
+
 // TODO(These marker traits could actually mean something and check things)
 
 // Marker traits for algebraic properties
@@ -409,9 +416,6 @@ pub trait FiniteField: Field {
 
     /// Returns the number of elements in the field.
     fn order() -> u64;
-
-    /// Returns a generator of the multiplicative group of the field.
-    fn generator() -> Self;
 }
 
 /// Represents an Ordered Field, a field with a total order compatible with its operations.
@@ -437,7 +441,7 @@ pub trait RealField: OrderedField {}
 /// where a_i ∈ F are called the coefficients, and X is the indeterminate.
 pub trait Polynomial: Clone + PartialEq + ClosedAdd + ClosedMul + Euclid {
     /// The type of the coefficients of the polynomial.
-    type Coefficient: Field;
+    type Coefficient: Ring;
 
     /// Returns the degree of the polynomial.
     fn degree(&self) -> usize;
@@ -582,6 +586,7 @@ impl<T: Ring + CommutativeMultiplication> CommutativeRing for T {}
 
 // IntegralDomain
 // Note: This is a simplified implementation. In practice, you'd need to check for zero divisors.
+
 impl<T: CommutativeRing> IntegralDomain for T {}
 
 // UniqueFactorizationDomain

@@ -10,7 +10,7 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, Sub, Su
 ///
 /// We take here, as an example, the skeleton implementation of a finite field.
 /// Where `L` number of words and `D` number of words are used to represent the field.
-/// The modulus is the order of the field, which would be prime.
+/// The modulus is the order of the field, which would be prime or a prime power
 #[derive(Clone, Copy, Debug)]
 pub struct FinitePrimeField<const L: usize, const D: usize> {
     modulus: [u64; L],
@@ -180,10 +180,6 @@ impl<const L: usize, const D: usize> FiniteField for FinitePrimeField<L, D> {
     }
 
     fn order() -> u64 {
-        todo!()
-    }
-
-    fn generator() -> Self {
         todo!()
     }
 }
