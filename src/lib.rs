@@ -349,9 +349,9 @@ pub trait CommutativeRing: Ring + CommutativeMultiplication {}
 ///    ∀ a, b ∈ D, if a · b = 0, then a = 0 or b = 0
 /// 3. The zero element is distinct from the unity:
 ///    0 ≠ 1
-pub trait IntegralDomain: CommutativeRing {}
+pub trait IntegralDomain: CommutativeRing {
 
-/// Represents a Unique Factorization Domain (UFD), an integral domain where every non-zero
+    /// Represents a Unique Factorization Domain (UFD), an integral domain where every non-zero
 /// non-unit element has a unique factorization into irreducible elements.
 ///
 /// # Mathematical Definition
@@ -366,6 +366,24 @@ pub trait IntegralDomain: CommutativeRing {}
 /// 2. If a = p₁ · ... · pₙ = q₁ · ... · qₘ are two factorizations of a into irreducible elements,
 ///    then n = m and there exists a bijection σ: {1, ..., n} → {1, ..., n} such that pᵢ is
 ///    associated to qₛᵢ for all i.
+    fn is_zero_divisor(&self) -> bool{
+        self.is_zero()
+    }
+
+    fn divides(&self, other: &Self) -> bool{
+        if self.is_zero(){
+            other.is_zero()
+        } else {
+            let mut c = Self::zero();
+            while c * *self != *other {
+                c = c + Self::one();
+                if c.is_zero(){
+                    return false;
+                }
+            } true 
+        }
+    }
+}
 pub trait UniqueFactorizationDomain: IntegralDomain {}
 
 /// Represents a Principal Ideal Domain (PID), an integral domain where every ideal is principal.
@@ -584,8 +602,8 @@ impl<T: AdditiveAbelianGroup + MultiplicativeMonoid + Distributive> Ring for T {
 // CommutativeRing
 impl<T: Ring + CommutativeMultiplication> CommutativeRing for T {}
 
-// IntegralDomain
-// Note: This is a simplified implementation. In practice, you'd need to check for zero divisors.
+// IntegralDomain 
+//added implementation which checks for zero diversers 
 
 impl<T: CommutativeRing> IntegralDomain for T {}
 
