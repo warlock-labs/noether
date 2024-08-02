@@ -2,6 +2,7 @@ use num_traits::{Euclid, Inv, One, Zero};
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
 };
+use std::collections::{HashMap};
 
 // A note on the reasons why certain traits are used:
 //
@@ -369,7 +370,7 @@ pub trait IntegralDomain: CommutativeRing {
             } true 
         }
     }
-}
+} //TODO - tests?
 
 /// Represents a Unique Factorization Domain (UFD), an integral domain where every non-zero
 /// non-unit element has a unique factorization into irreducible elements.
@@ -386,7 +387,29 @@ pub trait IntegralDomain: CommutativeRing {
 /// 2. If a = p₁ · ... · pₙ = q₁ · ... · qₘ are two factorizations of a into irreducible elements,
 ///    then n = m and there exists a bijection σ: {1, ..., n} → {1, ..., n} such that pᵢ is
 ///    associated to qₛᵢ for all i.
-pub trait UniqueFactorizationDomain: IntegralDomain {}
+pub trait UniqueFactorizationDomain: IntegralDomain { //simple 
+
+    // type irreducible: Clone + PartialEq;
+    
+    // fn is_unit(&self) -> bool;
+
+    // fn is_irreducible(7self) -> bool;
+
+    // fn factor($self) -> Option<HashMap<Self::irreducible, usize>>;
+
+    // fn are_associates(&self, other: &Self) -> bool;
+
+    // fn gcd(&self, other:&Self) -> Self;
+
+    // fn lcm(&self, other: &Self) -> Self; TODO defaults for are_associates, gcd and lcm. also need to handle large ints (need to read up a lil before commiting to it)
+
+
+
+
+
+
+}
+
 
 /// Represents a Principal Ideal Domain (PID), an integral domain where every ideal is principal.
 ///
