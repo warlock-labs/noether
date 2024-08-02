@@ -351,21 +351,7 @@ pub trait CommutativeRing: Ring + CommutativeMultiplication {}
 ///    0 ≠ 1
 pub trait IntegralDomain: CommutativeRing {
 
-    /// Represents a Unique Factorization Domain (UFD), an integral domain where every non-zero
-/// non-unit element has a unique factorization into irreducible elements.
-///
-/// # Mathematical Definition
-/// A UFD (R, +, ·) is an integral domain that satisfies:
-/// 1. Every non-zero non-unit element can be factored into irreducible elements.
-/// 2. This factorization is unique up to order and associates.
-///
-/// # Formal Definition
-/// Let R be an integral domain. R is a UFD if:
-/// 1. For every non-zero non-unit a ∈ R, there exist irreducible elements p₁, ..., pₙ such that
-///    a = p₁ · ... · pₙ
-/// 2. If a = p₁ · ... · pₙ = q₁ · ... · qₘ are two factorizations of a into irreducible elements,
-///    then n = m and there exists a bijection σ: {1, ..., n} → {1, ..., n} such that pᵢ is
-///    associated to qₛᵢ for all i.
+
     fn is_zero_divisor(&self) -> bool{
         self.is_zero()
     }
@@ -384,6 +370,22 @@ pub trait IntegralDomain: CommutativeRing {
         }
     }
 }
+
+/// Represents a Unique Factorization Domain (UFD), an integral domain where every non-zero
+/// non-unit element has a unique factorization into irreducible elements.
+///
+/// # Mathematical Definition
+/// A UFD (R, +, ·) is an integral domain that satisfies:
+/// 1. Every non-zero non-unit element can be factored into irreducible elements.
+/// 2. This factorization is unique up to order and associates.
+///
+/// # Formal Definition
+/// Let R be an integral domain. R is a UFD if:
+/// 1. For every non-zero non-unit a ∈ R, there exist irreducible elements p₁, ..., pₙ such that
+///    a = p₁ · ... · pₙ
+/// 2. If a = p₁ · ... · pₙ = q₁ · ... · qₘ are two factorizations of a into irreducible elements,
+///    then n = m and there exists a bijection σ: {1, ..., n} → {1, ..., n} such that pᵢ is
+///    associated to qₛᵢ for all i.
 pub trait UniqueFactorizationDomain: IntegralDomain {}
 
 /// Represents a Principal Ideal Domain (PID), an integral domain where every ideal is principal.
