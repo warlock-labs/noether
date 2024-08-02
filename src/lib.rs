@@ -628,7 +628,7 @@ impl<T: AdditiveAbelianGroup + MultiplicativeMonoid + Distributive> Ring for T {
 impl<T: Ring + CommutativeMultiplication> CommutativeRing for T {}
 
 // IntegralDomain 
-//added implementation which checks for zero diversors 
+//added implementation which checks for zero divisors 
 
 impl<T: CommutativeRing> IntegralDomain for T {}
 
