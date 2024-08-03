@@ -1,3 +1,4 @@
+/* trunk-ignore-all(rustfmt) */
 use num_traits::{Euclid, Inv, One, Zero};
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
@@ -337,6 +338,7 @@ pub trait Ring: AdditiveAbelianGroup + MultiplicativeMonoid + Distributive {}
 /// 2. ∀ a, b ∈ R, a · b = b · a (commutativity of multiplication)
 pub trait CommutativeRing: Ring + CommutativeMultiplication {}
 
+
 /// Represents an Integral Domain, a commutative ring with no zero divisors.
 ///
 /// # Mathematical Definition
@@ -352,17 +354,17 @@ pub trait CommutativeRing: Ring + CommutativeMultiplication {}
 ///    0 ≠ 1
 pub trait IntegralDomain: CommutativeRing {
 
-
+    /// Checks if element is a zero divisor
     fn is_zero_divisor(&self) -> bool{
         self.is_zero()
     }
-
+    /// Checks if element divides other elements
     fn divides(&self, other: &Self) -> bool{
         if self.is_zero(){
             other.is_zero()
         } else {
-            let mut c = Self::zero();
-            while c * *self != *other {
+            let mut c = self.clone();
+            while c * self != *other {
                 c = c + Self::one();
                 if c.is_zero(){
                     return false;
@@ -370,6 +372,77 @@ pub trait IntegralDomain: CommutativeRing {
             } true 
         }
     }
+    /// Checks if element has a multiple inverse
+    fn is_unit(&self)->bool{
+        !self.is_zero() && self.divides(&Self::one())
+    }
+    ///Calculates the greatest common divisor
+    fn gcd(&self, other: &Self) -> Self { //recommend defining a seperate trait for gcd to handle large numbers https://en.algorithmica.org/hpc/algorithms/gcd/
+        let mut a = self.clone();
+        let mut b = other.clone();
+        while !b.is_zero() {
+            let t = b.clone();
+            b = a % b;
+            a = t;
+        }
+        a
+    }
+
+    /// Calculates the least common multiple 
+    fn lcm(&self, other: &Self) -> Self {
+        if self.is_zero() && other.is_zero() {
+            Self::zero()
+        } else {
+            (self * other) / self.gcd(other)
+        }
+    }
+
+    /// Checks if two elements are associates (differ by a unit factor).
+    fn are_associates(&self, other: &Self) -> bool {
+        !self.is_zero() && !other.is_zero() && (self.divides(other) && other.divides(self))
+    }
+
+    /// Checks if the element is irreducible.
+    fn is_irreducible(&self) -> bool {
+        if self.is_unit() || self.is_zero() {
+            false
+        } else {
+            for a in self.non_trivial_divisors() {
+                if !a.is_unit() && !self.div_by(&a).is_unit() {
+                    return false;
+                }
+            }
+            true
+        }
+    }
+
+    /// Returns an iterator over the non-trivial divisors of the element.
+    fn non_trivial_divisors(&self) -> Box<dyn Iterator<Item = Self>> {
+        Box::new((Self::one()..=self.clone())
+            .filter(move |x| self.divides(x) && !x.is_one() && x != self))
+    }
+
+    /// Performs division by another element, returning None if not exactly divisible.
+    fn div_by(&self, other: &Self) -> Option<Self> {
+        if other.is_zero() {
+            None
+        } else {
+            let mut q = Self::zero();
+            let mut r = self.clone();
+            while r >= *other {
+                r = r - other.clone();
+                q = q + Self::one();
+            }
+            if r.is_zero() {
+                Some(q)
+            } else {
+                None
+            }
+        }
+    }
+
+    
+
 } //TODO - tests?
 
 /// Represents a Unique Factorization Domain (UFD), an integral domain where every non-zero
