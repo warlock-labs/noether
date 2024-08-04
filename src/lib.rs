@@ -1,5 +1,6 @@
 /* trunk-ignore-all(rustfmt) */
 use num_traits::{Euclid, Inv, One, Zero};
+use std::hash::Hash;
 use std::ops::{
     Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, RemAssign, Sub, SubAssign,
 };
@@ -442,8 +443,8 @@ pub trait IntegralDomain: CommutativeRing {
     }
 
     
-
-} //TODO - tests?
+//TODO - tests?
+} 
 
 /// Represents a Unique Factorization Domain (UFD), an integral domain where every non-zero
 /// non-unit element has a unique factorization into irreducible elements.
@@ -462,21 +463,46 @@ pub trait IntegralDomain: CommutativeRing {
 ///    associated to qₛᵢ for all i.
 pub trait UniqueFactorizationDomain: IntegralDomain { //simple 
 
-    // type irreducible: Clone + PartialEq;
-    
-    // fn is_unit(&self) -> bool;
+    fn is_prime(&self) -> bool {
+        self.is_irreducible()
+    }
 
-    // fn is_irreducible(7self) -> bool;
+    ///Factoring element to its primes 
+    fn factor(&self) -> Option<HashMap<Self,usize>>{
+        if self.is_zero() || self.is_unit(){
+            return None;
 
-    // fn factor($self) -> Option<HashMap<Self::irreducible, usize>>;
+        }
 
-    // fn are_associates(&self, other: &Self) -> bool;
+        let mut factors = HashMap::new();
+        let mut remainder = self.clone();
 
-    // fn gcd(&self, other:&Self) -> Self;
+        for p in self.potential_prime_factors(){
+            let mut exponent = 0;
+            while let Some(q) = remainder.div_by(p){
+                exponent += 1;
+                remainder = q;
+            }
+            if exponent > 0 {
+                factors.insert(p, exponent);
 
-    // fn lcm(&self, other: &Self) -> Self; TODO defaults for are_associates, gcd and lcm. also need to handle large ints (need to read up a lil before commiting to it)
+            }
+            if remainder.is_unit(){
+                break;
+            }
+        }
 
+        if factors.is_empty(){
+            factors.insert(self.clone(),1);
+        }
+    Some(factors) }
 
+        fn potential_prime_factors(&self) -> Box<dyn Iterator<Item = Self>>{
+            Box::new(self.non_trivial_divisors().filter(|x|x.is_prime()))
+        }
+        fn has_unique_factorizatio(&self) -> bool {
+            !self.is_zero() && !self.is_unit()
+        }
 
 
 
