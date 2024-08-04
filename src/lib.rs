@@ -479,7 +479,7 @@ pub trait UniqueFactorizationDomain: IntegralDomain { //simple
 
         for p in self.potential_prime_factors(){
             let mut exponent = 0;
-            while let Some(q) = remainder.div_by(p){
+            while let Some(q) = remainder.div_by(&p){
                 exponent += 1;
                 remainder = q;
             }
@@ -500,7 +500,7 @@ pub trait UniqueFactorizationDomain: IntegralDomain { //simple
         fn potential_prime_factors(&self) -> Box<dyn Iterator<Item = Self>>{
             Box::new(self.non_trivial_divisors().filter(|x|x.is_prime()))
         }
-        fn has_unique_factorizatio(&self) -> bool {
+        fn has_unique_factorization(&self) -> bool {
             !self.is_zero() && !self.is_unit()
         }
 
