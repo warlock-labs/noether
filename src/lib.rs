@@ -509,6 +509,9 @@ pub trait UniqueFactorizationDomain: IntegralDomain { //simple
 
 }
 
+pub struct Ideal<T:PrincipalIdealDomain>{
+    generator: T,
+}
 
 /// Represents a Principal Ideal Domain (PID), an integral domain where every ideal is principal.
 ///
@@ -519,8 +522,27 @@ pub trait UniqueFactorizationDomain: IntegralDomain { //simple
 /// # Formal Definition
 /// Let R be an integral domain. R is a PID if for every ideal I ⊆ R, there exists an element a ∈ R
 /// such that I = (a) = {ra | r ∈ R}.
-pub trait PrincipalIdealDomain: UniqueFactorizationDomain {}
+pub trait PrincipalIdealDomain: UniqueFactorizationDomain {
+    fn is_principal_ideal_domain() -> bool{
+        true
+    }
+    
+    fn principal_ideal(&self) -> Ideal<Self> {
+        Ideal::new(self.clone())
+    }
 
+    fn is_unit_ideal(&self) -> bool {
+        self.is_unit()
+    }
+
+    fn ideal_sum_generator(&self, other: &Self) -> Self {
+        self.gcd(other)
+    }
+
+    fn ideal_product_generator(&self, other: &Self) -> Self {
+        self.clone() * other.clone()
+    }
+}
 /// Represents a Euclidean Domain, an integral domain with a Euclidean function.
 ///
 /// # Mathematical Definition
@@ -736,6 +758,9 @@ impl<T: IntegralDomain> UniqueFactorizationDomain for T {}
 
 // PrincipalIdealDomain
 impl<T: UniqueFactorizationDomain> PrincipalIdealDomain for T {}
+
+//Ideal
+//todo
 
 // EuclideanDomain
 impl<T: PrincipalIdealDomain + Euclid> EuclideanDomain for T {}
