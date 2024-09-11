@@ -1,6 +1,0 @@
-{
-    "yaml.schemas": {
-        "file:///Users/geetsharma/.vscode/extensions/atlassian.atlascode-3.0.9/resources/schemas/pipelines-schema.json": "bitbucket-pipelines.yml",
-        "https://json.schemastore.org/github-workflow.json": "file:///Users/geet/code-stuff/cryptography/noether/.github/workflows/CI.yml"
-    }
-}
