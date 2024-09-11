@@ -175,12 +175,15 @@ impl<const L: usize, const D: usize> AssociativeMultiplication for FinitePrimeFi
 impl<const L: usize, const D: usize> Distributive for FinitePrimeField<L, D> {}
 
 impl<const L: usize, const D: usize> FiniteField for FinitePrimeField<L, D> {
-    fn characteristic() -> u64 {
-        todo!()
+
+    type ScalarType = [u64,L];
+
+    fn characteristic() -> Self::ScalarType {
+        unimplemented!("TODO")
     }
 
-    fn order() -> u64 {
-        todo!()
+    fn order() -> Self::ScalarType {
+        unimplemented!("TODO")
     }
 }
 
