@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - clean
     tags:
       - 'v*.*.*'
   pull_request:
