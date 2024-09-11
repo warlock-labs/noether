@@ -1,6 +1,6 @@
 use noether::{
     AssociativeAddition, AssociativeMultiplication, CommutativeAddition, CommutativeMultiplication,
-    Distributive, FiniteField,
+    Distributive, FiniteField
 };
 use num_traits::{Euclid, Inv, One, Zero};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, Sub, SubAssign};
@@ -174,9 +174,10 @@ impl<const L: usize, const D: usize> AssociativeMultiplication for FinitePrimeFi
 /// Marker trait for distributive multiplication over addition: a * (b + c) = (a * b) + (a * c)
 impl<const L: usize, const D: usize> Distributive for FinitePrimeField<L, D> {}
 
-impl<const L: usize, const D: usize> FiniteField for FinitePrimeField<L, D> {
 
-    type ScalarType = [u64,L];
+impl<const L: usize, const D: usize> FiniteField for FinitePrimeField<L, D> {
+    //Note to use ScalarType as is in noether user will have to create a wrapper type around [u64; L] and implement the necessary traits for it.
+    type ScalarType = [u64; L];
 
     fn characteristic() -> Self::ScalarType {
         unimplemented!("TODO")
