@@ -1,3 +1,4 @@
+/* trunk-ignore-all(rustfmt) */
 use noether::{
     AssociativeAddition, AssociativeMultiplication, CommutativeAddition, CommutativeMultiplication,
     Distributive, FiniteField
@@ -11,32 +12,99 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, Sub, Su
 /// We take here, as an example, the skeleton implementation of a finite field.
 /// Where `L` number of words and `D` number of words are used to represent the field.
 /// The modulus is the order of the field, which would be prime or a prime power
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct FieldElement<const L: usize>([u64; L]);
+
+impl<const L: usize> Add for FieldElement<L>{
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut result = [0; L];
+        let mut carry = 0u64;
+        for i in 0..L {
+            let sum = self.0[i] as u128 + rhs.0[i] as u128 + carry as u128;
+            result[i] = sum as u64;
+            carry = (sum >> 64) as u64;
+        }
+        Self(result)
+    }
+}
+
+impl<const L: usize> Mul for FieldElement<L> {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        let mut result = [0u64; L];
+        for i in 0..L {
+            let mut carry = 0u128;
+            for j in 0..L {
+                if i + j >= L {
+                    break;
+                }
+                let prod = (self.0[i] as u128) * (rhs.0[j] as u128)
+                    + (result[i + j] as u128)
+                    + carry;
+                result[i + j] = prod as u64;
+                carry = prod >> 64;
+            }
+        }
+
+        Self(result)
+    }
+}
+
+impl<const L: usize> PartialOrd for FieldElement<L> {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        self.0.partial_cmp(&other.0)
+    }
+}
+
+
+
+impl<const L: usize> Zero for FieldElement<L> {
+    fn zero() -> Self {
+        Self([0; L])
+    }
+
+    fn is_zero(&self) -> bool {
+        self.0[0] == 0
+    }
+}
+
+impl<const L: usize> One for FieldElement<L>{
+    fn one() -> Self {
+        let mut arr = [0; L];
+        arr[0] = 1;
+        Self(arr)
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct FinitePrimeField<const L: usize, const D: usize> {
-    modulus: [u64; L],
-    _value: [u64; L],
+    modulus: FieldElement<L>,
+    value: FieldElement<L>
 }
 
 impl<const L: usize, const D: usize> FinitePrimeField<L, D> {
-    const _ZERO: [u64; L] = Self::zero_array();
+    // const _ZERO: [u64; L] = Self::zero_array();
 
     pub const fn new(modulus: [u64; L], value: [u64; L]) -> Self {
         if D != 2 * L {
             panic!("Double size D must be twice the size of the field L");
         }
         Self {
-            modulus,
-            _value: value,
+            modulus: FieldElement(modulus),
+            value: FieldElement(value),
         }
     }
 
-    /// Creates an array representing zero in the field.
-    ///
-    /// # Returns
-    ///
-    /// An array of L u64 elements, all set to 0
-    const fn zero_array() -> [u64; L] {
+    pub const fn zero_array() -> [u64; L] {
         [0; L]
+    }
+
+    pub fn zero() -> Self {
+        Self::new([0; L], [0; L])
     }
 }
 
@@ -47,7 +115,7 @@ impl<const L: usize, const D: usize> Add for FinitePrimeField<L, D> {
     ///
     /// This method adds two field elements and reduces the result modulo the field's modulus.
     fn add(self, _other: Self) -> Self {
-        Self::new(self.modulus, Self::zero_array())
+        todo!()
     }
 }
 
@@ -71,7 +139,7 @@ impl<const L: usize, const D: usize> Neg for FinitePrimeField<L, D> {
     type Output = Self;
 
     fn neg(self) -> Self {
-        Self::new(self.modulus, Self::zero_array())
+        Self::new(self.modulus.0, FieldElement::<L>::zero().0)
     }
 }
 
@@ -83,7 +151,7 @@ impl<const L: usize, const D: usize> Sub for FinitePrimeField<L, D> {
     /// This method subtracts one field element from another and ensures the result
     /// is in the correct range by adding the modulus if necessary.
     fn sub(self, _other: Self) -> Self {
-        Self::new(self.modulus, Self::zero_array())
+        Self::new(self.modulus.0, FieldElement::<L>::zero().0)
     }
 }
 
@@ -103,7 +171,7 @@ impl<const L: usize, const D: usize> Mul for FinitePrimeField<L, D> {
     type Output = Self;
 
     fn mul(self, _other: Self) -> Self {
-        Self::new(self.modulus, Self::zero_array())
+        Self::new(self.modulus.0, Self::zero_array())
     }
 }
 
@@ -123,7 +191,7 @@ impl<const L: usize, const D: usize> Inv for FinitePrimeField<L, D> {
     type Output = Self;
 
     fn inv(self) -> Self {
-        Self::new(self.modulus, Self::zero_array())
+        Self::new(self.modulus.0, Self::zero_array())
     }
 }
 
@@ -149,7 +217,7 @@ impl<const L: usize, const D: usize> Div for FinitePrimeField<L, D> {
     type Output = Self;
 
     fn div(self, _other: Self) -> Self {
-        Self::new(self.modulus, Self::zero_array())
+        Self::new(self.modulus.0, Self::zero_array())
     }
 }
 
@@ -176,8 +244,9 @@ impl<const L: usize, const D: usize> Distributive for FinitePrimeField<L, D> {}
 
 
 impl<const L: usize, const D: usize> FiniteField for FinitePrimeField<L, D> {
-    //Note to use ScalarType as is in noether user will have to create a wrapper type around [u64; L] and implement the necessary traits for it.
-    type ScalarType = [u64; L];
+
+    type ScalarType = FieldElement<L>;
+
 
     fn characteristic() -> Self::ScalarType {
         unimplemented!("TODO")
