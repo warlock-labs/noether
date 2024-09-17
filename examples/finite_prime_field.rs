@@ -26,7 +26,7 @@ impl<const L: usize> Zero for FieldElement<L> {
     }
 }
 
-impl<const L: usize> One for FieldElement<L>{
+impl<const L: usize> One for FieldElement<L> {
     fn one() -> Self {
         let mut arr = [0; L];
         arr[0] = 1;
@@ -40,7 +40,7 @@ impl<const L: usize> Add for FieldElement<L> {
     fn add(self, rhs: Self) -> Self::Output {
         let mut result = [0; L];
         let mut carry = 0u64;
-        for (i, (& self_val, &rhs_val)) in self.0.iter().zip(rhs.0.iter()).enumerate() {
+        for (i, (&self_val, &rhs_val)) in self.0.iter().zip(rhs.0.iter()).enumerate() {
             let sum = self_val as u128 + rhs_val as u128 + carry as u128;
             result[i] = sum as u64;
             carry = (sum >> 64) as u64;
@@ -60,9 +60,7 @@ impl<const L: usize> Mul for FieldElement<L> {
                 if i + j >= L {
                     break;
                 }
-                let prod = (self_val as u128) * (rhs_val as u128)
-                    + (result[i + j] as u128)
-                    + carry;
+                let prod = (self_val as u128) * (rhs_val as u128) + (result[i + j] as u128) + carry;
                 result[i + j] = prod as u64;
                 carry = prod >> 64;
             }
@@ -240,13 +238,13 @@ impl<const L: usize, const D: usize> FiniteField for FinitePrimeField<L, D> {
     fn characteristic() -> Self::ScalarType {
         // For a prime field, the characteristic is the same as the modulus
         // This is a placeholder implementation
-        FieldElement([2; L])  // Example: characteristic 2
+        FieldElement([2; L]) // Example: characteristic 2
     }
 
     fn order() -> Self::ScalarType {
         // For a prime field, the order is the same as the modulus
         // This is a placeholder implementation
-        FieldElement([4; L])  // Example: order 4
+        FieldElement([4; L]) // Example: order 4
     }
 }
 
