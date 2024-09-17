@@ -34,14 +34,14 @@ impl<const L: usize> One for FieldElement<L>{
     }
 }
 
-impl<const L: usize> Add for FieldElement<L>{
+impl<const L: usize> Add for FieldElement<L> {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self::Output {
         let mut result = [0; L];
         let mut carry = 0u64;
-        for i in 0..L {
-            let sum = self.0[i] as u128 + rhs.0[i] as u128 + carry as u128;
+        for (i, (& self_val, &rhs_val)) in self.0.iter().zip(rhs.0.iter()).enumerate() {
+            let sum = self_val as u128 + rhs_val as u128 + carry as u128;
             result[i] = sum as u64;
             carry = (sum >> 64) as u64;
         }
@@ -54,13 +54,13 @@ impl<const L: usize> Mul for FieldElement<L> {
 
     fn mul(self, rhs: Self) -> Self::Output {
         let mut result = [0u64; L];
-        for i in 0..L {
+        for (i, &self_val) in self.0.iter().enumerate() {
             let mut carry = 0u128;
-            for j in 0..L {
+            for (j, &rhs_val) in rhs.0.iter().enumerate() {
                 if i + j >= L {
                     break;
                 }
-                let prod = (self.0[i] as u128) * (rhs.0[j] as u128)
+                let prod = (self_val as u128) * (rhs_val as u128)
                     + (result[i + j] as u128)
                     + carry;
                 result[i + j] = prod as u64;
