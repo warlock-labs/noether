@@ -518,6 +518,72 @@ pub trait FieldExtensionTower: FieldExtension {
     fn extension_degree(i: usize) -> usize;
 }
 
+
+/// Represents a  join-semilattice
+/// //a Partially ordered set which admits all finite joins, or equivalently which admits a bottom element ⊥ and binary joins a ∨ b
+/// # Mathematical Definition
+///  A join-semilattice, is a partially ordered set where any two elements have a unique least upper bound.
+///
+/// Properties:
+/// * ∨ (join) is idempotent, commutative, and associative
+pub trait JoinSemilattice: PartialOrd{
+    fn join(&self, other: &Self) -> Self;
+}
+
+/// Represents a meet-semilattice
+/// # Mathematical Definition
+/// a meet-semilattice aka lower semilattice is Partially ordered set which admits all finite meets, including a top element ⊤ and binary meets ∧
+/// OR
+/// meet-semilattice aka lower semilattice is a partially ordered set which has a meet (or greatest lower bound) for any nonempty finite subset.
+/// Every join-semilattice is a meet-semilattice in the inverse order and vice versa.
+
+pub trait MeetSemilattice: PartialOrd{
+    fn meet(&self, other: &Self) -> Self;
+}
+
+
+/// Represents a Lattice
+/// # Mathematical Definition
+/// A lattice is a partially ordered set that is both a join-semilattice and a meet-semilattice.
+/// Properties:
+/// * ∧ and ∨ are each idempotent, commutative, and associative
+/// * Absorption laws:
+///   - a∨(a∧b)=a
+///   - a∧(a∨b)=a
+pub trait Lattice: JoinSemilattice + MeetSemilattice{}
+
+pub trait DistributiveLattice: Lattice{}
+
+pub trait ModularLattice: Lattice{}
+
+/// Represents a bounded lattice
+/// # Mathematical Definition
+/// A bounded lattice is a lattice that has a top(greatest element) and bottom (least element) / a partially ordered set that has top and bottom elements
+/// Properties:
+/// * ⊤ (top) is the identity element for ∧ (meet)
+/// * ⊥ (bottom) is the identity element for ∨ (join)
+
+pub trait BoundedLattice: Lattice{
+    /// Returns the top of the lattice
+    fn top() -> Self;
+
+    /// Returns the bottom of the lattice
+    fn bottom() -> Self;
+}
+
+/// Represents a complemented lattice
+/// # Mathematical definition
+/// A Complemented lattice is a lattice where all elements have atleast one complement
+pub trait ComplementedLattice: BoundedLattice{
+    ///Checks if a given element is a valid complement
+    fn is_complement(&self, other: &Self) -> bool{
+        self.join(other) == Self::top() && self.meet(other) == Self::bottom()
+    }
+    /// Returns a complement of the element
+    fn complement(&self) -> Self;
+
+}
+
 // Blanket implementations for basic operation traits
 impl<T: Add<Output = T>> ClosedAdd for T {}
 impl<T: for<'a> Add<&'a T, Output = T>> ClosedAddRef for T {}
