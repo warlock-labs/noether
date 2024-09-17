@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - clean
+      - main
     tags:
       - 'v*.*.*'
   pull_request:
