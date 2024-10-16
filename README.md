@@ -1,11 +1,13 @@
-# Noether
+![Logo](./noether.png)
+
+# Nœther
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Crates.io](https://img.shields.io/crates/v/noether)](https://crates.io/crates/noether)
 [![Docs](https://img.shields.io/docsrs/noether)](https://docs.rs/noether)
 ![CI](https://github.com/warlock-labs/noether/actions/workflows/CI.yml/badge.svg)
 
-Noether provides traits and blanket implementations for algebraic structures, from basic ones like magmas to more
+Nœther provides traits and blanket implementations for algebraic structures, from basic ones like magmas to more
 complex ones like fields. It leans heavily on the basic traits available in std::ops and num_traits.
 
 ## Table of Contents
@@ -27,7 +29,7 @@ complex ones like fields. It leans heavily on the basic traits available in std:
 
 ## Background
 
-Named after Emmy Noether, a pioneering mathematician in abstract algebra, this library aims to bridge the gap between
+Named after Emmy Nœther, a pioneering mathematician in abstract algebra, this library aims to bridge the gap between
 abstract mathematics and practical programming in Rust. It enables developers to work with mathematical concepts in a
 type-safe, efficient, and expressive manner.
 
@@ -37,7 +39,7 @@ cases for anything from scalar values to n-dimensional arrays.
 
 ### Inspirations
 
-Noether draws inspiration from several existing libraries and projects in the field of computational algebra:
+Nœther draws inspiration from several existing libraries and projects in the field of computational algebra:
 
 1. [simba](https://crates.io/crates/simba): A Rust crate for SIMD-accelerated algebra.
 
@@ -49,7 +51,7 @@ Noether draws inspiration from several existing libraries and projects in the fi
    structures into a logically consistent framework. It aims to create composable libraries and APIs based on algebraic
    classifications.
 
-These libraries demonstrate the power and utility of representing algebraic structures in programming languages. Noether
+These libraries demonstrate the power and utility of representing algebraic structures in programming languages. Nœther
 builds upon their ideas, aiming to provide a comprehensive and ergonomic framework for working with algebraic structures
 in Rust.
 
@@ -61,12 +63,12 @@ Other notable inspirations from different programming languages include:
 - Idris' [algebra module](https://github.com/idris-lang/Idris-dev/blob/master/libs/prelude/Prelude/Algebra.idr)
 - Scala's [spire](https://github.com/non/spire)
 
-Noether also draws insights from academic papers in the field:
+Nœther also draws insights from academic papers in the field:
 
 - [The Scratchpad II Type System: Domains and Subdomains](http://www.csd.uwo.ca/~watt/pub/reprints/1990-miola-spadtypes.pdf)
 - [Fundamental Algebraic Concepts in Concept-Enabled C++](ftp://cgi.cs.indiana.edu/pub/techreports/TR638.pdf)
 
-Noether aims to bring the best ideas from these libraries and research to the Rust ecosystem, while taking advantage of
+Nœther aims to bring the best ideas from these libraries and research to the Rust ecosystem, while taking advantage of
 Rust's unique features like zero-cost abstractions and powerful type system.
 
 ## Features
@@ -88,7 +90,7 @@ noether = "0.1.0"
 
 ## Usage
 
-Here is a rough example of Z₅ (integers modulo 5) using Noether:
+Here is a rough example of Z₅ (integers modulo 5) using Nœther:
 
 ```rust
 use noether::{Field};
@@ -154,7 +156,7 @@ impl Field for Z5 {
 }
 ```
 
-This example shows how to construct a well factored finite field using Noether,
+This example shows how to construct a well factored finite field using Nœther,
 leveraging Rust's native operators and traits.
 
 ## Core Concepts
@@ -307,7 +309,7 @@ The traits and blanket implementations provided serve several important purposes
 
 ## API Overview
 
-Noether provides traits for various algebraic structures, including:
+Nœther provides traits for various algebraic structures, including:
 
 - `Magma`: Set with a binary operation
 - `Semigroup`: Associative magma
@@ -325,7 +327,7 @@ complete list of traits and their methods, please refer to the [API documentatio
 
 ## Advanced Usage
 
-Noether's power lies in its ability to express complex mathematical concepts and algorithms generically. Here's an
+Nœther's power lies in its ability to express complex mathematical concepts and algorithms generically. Here's an
 example of a function that works with any type implementing the `Field` trait:
 
 ```rust
@@ -343,7 +345,7 @@ custom type like our `Z5` from the earlier example.
 
 ## Performance
 
-Noether is designed with performance in mind, leveraging Rust's zero-cost abstractions. The use of trait-based
+Nœther is designed with performance in mind, leveraging Rust's zero-cost abstractions. The use of trait-based
 polymorphism allows for efficient, monomorphized code when used with concrete types.
 
 However, as with any abstract library, be aware that extensive use of dynamic dispatch (e.g., through trait objects) may
@@ -352,7 +354,7 @@ equivalent to hand-written implementations.
 
 ## Roadmap
 
-Future plans for Noether include:
+Future plans for Nœther include:
 
 - Implementing more advanced algebraic structures (e.g., Lattices, Boolean Algebras)
 - Adding support for infinite fields and their operations
@@ -375,9 +377,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-We hope that Noether will be a valuable tool for cryptographers, mathematicians, scientists, and
+We hope that Nœther will be a valuable tool for cryptographers, mathematicians, scientists, and
 developers working with algebraic structures in Rust. If you have any questions, suggestions, or
 feedback, please don't hesitate to open an issue on our GitHub repository or contact the
 maintainers.
 
-Happy coding with Noether!
+Happy coding with Nœther!
