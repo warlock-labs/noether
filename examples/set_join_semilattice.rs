@@ -57,7 +57,7 @@ fn main() {
     let result_same_set: SetJoinSemilattice<i32> = semilattice_c.join(&semilattice_d);
     println!("Resulting Same Set: {:?}", result_same_set.set);
 
-    // Test 2: check join with identity element should return identity
+    // Test 3: check join with identity element should return the same set
 
     let set_e: HashSet<_> = vec![1, 2, 4].into_iter().collect();
 
