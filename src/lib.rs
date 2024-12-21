@@ -607,6 +607,25 @@ impl<T: EuclideanDomain + MultiplicativeAbelianGroup> Field for T {}
 // OrderedField
 impl<T: Field + PartialOrd> OrderedField for T {}
 
+// properties of Join in a semilattice
+/// Ensures that the join operation satisfies associativity:
+/// - For all a, b, c in the semilattice:
+///   (a ⋁ b) ⋁ c == a ⋁ (b ⋁ c)
+/// This property guarantees that grouping does not affect the result of joins.
+pub trait AssociativeJoin {}
+/// Ensures that the join operation satisfies commutativity:
+/// - For all a, b in the semilattice:
+///   a ⋁ b == b ⋁ a
+/// This property allows the order of operands to be swapped without affecting the result.
+
+pub trait CommutativeJoin {}
+
+pub trait Join: AssociativeJoin + CommutativeJoin {
+    fn join(self, other: &Self) -> Self;
+}
+
+pub trait JoinSemiLattice: Join {}
+
 // RealField
 // Note: This cannot be implemented as a blanket impl because it requires knowledge about completeness
 
