@@ -35,16 +35,18 @@ impl<T: Eq + std::hash::Hash + Clone> Join for SetJoinSemilattice<T> {
 impl<T: Eq + std::hash::Hash + Clone> JoinSemiLattice for SetJoinSemilattice<T> {}
 
 fn main() {
+    // Test 1: check join of different sets
     let set_a: HashSet<_> = vec![1, 2, 3].into_iter().collect();
     let set_b: HashSet<_> = vec![3, 4, 5].into_iter().collect();
 
-    // Create SetJoinSemilattice elements
     let semilattice_a = SetJoinSemilattice { set: set_a };
     let semilattice_b = SetJoinSemilattice { set: set_b };
 
     // Perform the join operation (union)
     let result: SetJoinSemilattice<i32> = semilattice_a.join(&semilattice_b);
     println!("Resulting Set: {:?}", result.set);
+
+    // Test 2: check join of same element
 
     let set_c: HashSet<_> = vec![1, 2, 3].into_iter().collect();
     let set_d: HashSet<_> = vec![1, 2, 3].into_iter().collect();
@@ -54,4 +56,17 @@ fn main() {
 
     let result_same_set: SetJoinSemilattice<i32> = semilattice_c.join(&semilattice_d);
     println!("Resulting Same Set: {:?}", result_same_set.set);
+
+    // Test 2: check join with identity element should return identity
+
+    let set_e: HashSet<_> = vec![1, 2, 4].into_iter().collect();
+
+    let semilattice_e = SetJoinSemilattice { set: set_e };
+    let identity = semilattice_e.identity();
+
+    let result_identity: SetJoinSemilattice<i32> = semilattice_e.join(&identity);
+    println!(
+        "Resulting of join with identity should return same set {:?}",
+        result_identity.set
+    );
 }
