@@ -1,4 +1,4 @@
-use noether::{AssociativeJoin, CommutativeJoin, Join, JoinSemiLattice};
+use noether::{AssociativeJoin, CommutativeJoin, IdempotentJoin, Join, JoinSemiLattice};
 use std::collections::HashSet;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -13,10 +13,20 @@ impl<T: Eq + std::hash::Hash + Clone> SetJoinSemilattice<T> {
 impl<T: Eq + std::hash::Hash + Clone> CommutativeJoin for SetJoinSemilattice<T> {}
 impl<T: Eq + std::hash::Hash + Clone> AssociativeJoin for SetJoinSemilattice<T> {}
 
+impl<T: Eq + std::hash::Hash + Clone> IdempotentJoin for SetJoinSemilattice<T> {}
+
 impl<T: Eq + std::hash::Hash + Clone> Join for SetJoinSemilattice<T> {
     fn join(self, other: &Self) -> Self {
         let union: HashSet<T> = self.set.union(&other.set).cloned().collect();
         Self { set: union }
+    }
+
+    /// The identity element: an empty set.
+    /// Satisfies: a ⋁ {} == a
+    fn identity(&self) -> Self {
+        Self {
+            set: HashSet::new(),
+        }
     }
 }
 
