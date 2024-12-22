@@ -415,10 +415,10 @@ pub trait FiniteField: Field {
     type ScalarType: Clone + PartialOrd + Zero + One;
 
     /// Returns the characteristic of the field.
-    fn characteristic() -> Self::ScalarType;
+    fn characteristic() -> u64;
 
     /// Returns the number of elements in the field.
-    fn order() -> Self::ScalarType;
+    fn order() -> u64;
 }
 
 /// Represents an Ordered Field, a field with a total order compatible with its operations.
