@@ -235,16 +235,16 @@ impl<const L: usize, const D: usize> Distributive for FinitePrimeField<L, D> {}
 impl<const L: usize, const D: usize> FiniteField for FinitePrimeField<L, D> {
     type ScalarType = FieldElement<L>;
 
-    fn characteristic() -> Self::ScalarType {
+    fn characteristic() -> u64 {
         // For a prime field, the characteristic is the same as the modulus
         // This is a placeholder implementation
-        FieldElement([2; L]) // Example: characteristic 2
+        2 // Example: characteristic 2
     }
 
-    fn order() -> Self::ScalarType {
+    fn order() -> u64 {
         // For a prime field, the order is the same as the modulus
         // This is a placeholder implementation
-        FieldElement([4; L]) // Example: order 4
+        4 // Example: order 4
     }
 }
 
