@@ -411,6 +411,9 @@ pub trait Field: EuclideanDomain + MultiplicativeAbelianGroup {}
 /// # Properties
 /// - The number of elements is always a prime power p^n
 pub trait FiniteField: Field {
+    ///Allows for an arbitrary size representation without specificing type
+    type ScalarType: Clone + PartialOrd + Zero + One;
+
     /// Returns the characteristic of the field.
     fn characteristic() -> u64;
 

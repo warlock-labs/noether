@@ -11,6 +11,64 @@ use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Neg, Rem, Sub, Su
 /// We take here, as an example, the skeleton implementation of a finite field.
 /// Where `L` number of words and `D` number of words are used to represent the field.
 /// The modulus is the order of the field, which would be prime or a prime power
+
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Eq)]
+
+pub struct FieldElement<const L: usize>([u64; L]);
+
+impl<const L: usize> Zero for FieldElement<L> {
+    fn zero() -> Self {
+        Self([0; L])
+    }
+
+    fn is_zero(&self) -> bool {
+        self.0[0] == 0
+    }
+}
+
+impl<const L: usize> One for FieldElement<L> {
+    fn one() -> Self {
+        let mut arr = [0; L];
+        arr[0] = 1;
+        Self(arr)
+    }
+}
+
+impl<const L: usize> Add for FieldElement<L> {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let mut result = [0; L];
+        let mut carry = 0u64;
+        for (i, (&self_val, &rhs_val)) in self.0.iter().zip(rhs.0.iter()).enumerate() {
+            let sum = self_val as u128 + rhs_val as u128 + carry as u128;
+            result[i] = sum as u64;
+            carry = (sum >> 64) as u64;
+        }
+        Self(result)
+    }
+}
+
+impl<const L: usize> Mul for FieldElement<L> {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        let mut result = [0u64; L];
+        for (i, &self_val) in self.0.iter().enumerate() {
+            let mut carry = 0u128;
+            for (j, &rhs_val) in rhs.0.iter().enumerate() {
+                if i + j >= L {
+                    break;
+                }
+                let prod = (self_val as u128) * (rhs_val as u128) + (result[i + j] as u128) + carry;
+                result[i + j] = prod as u64;
+                carry = prod >> 64;
+            }
+        }
+
+        Self(result)
+    }
+}
 #[derive(Clone, Copy, Debug)]
 pub struct FinitePrimeField<const L: usize, const D: usize> {
     modulus: [u64; L],
@@ -175,12 +233,18 @@ impl<const L: usize, const D: usize> AssociativeMultiplication for FinitePrimeFi
 impl<const L: usize, const D: usize> Distributive for FinitePrimeField<L, D> {}
 
 impl<const L: usize, const D: usize> FiniteField for FinitePrimeField<L, D> {
+    type ScalarType = FieldElement<L>;
+
     fn characteristic() -> u64 {
-        todo!()
+        // For a prime field, the characteristic is the same as the modulus
+        // This is a placeholder implementation
+        2 // Example: characteristic 2
     }
 
     fn order() -> u64 {
-        todo!()
+        // For a prime field, the order is the same as the modulus
+        // This is a placeholder implementation
+        4 // Example: order 4
     }
 }
 
