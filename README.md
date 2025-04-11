@@ -352,20 +352,6 @@ However, as with any abstract library, be aware that extensive use of dynamic di
 incur some runtime cost. In most cases, the compiler can optimize away the abstractions, resulting in performance
 equivalent to hand-written implementations.
 
-## Roadmap
-
-Future plans for Nœther include:
-
-- Implementing more advanced algebraic structures (e.g., Lattices, Boolean Algebras)
-- Adding support for infinite fields and their operations
-- Implementing algorithms for polynomial operations over fields
-- Adding support for symbolic computation
-- Implementing numerical methods for root finding and equation solving
-- Enhancing documentation with more examples and tutorials
-- Optimizing performance for common operations
-- Adding a comprehensive test suite, including property-based tests
-- Exploring integration with other mathematical libraries in the Rust ecosystem
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit issues, feature requests, or pull requests on
