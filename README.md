@@ -8,7 +8,7 @@
 ![CI](https://github.com/warlock-labs/noether/actions/workflows/CI.yml/badge.svg)
 
 Nœther provides traits and blanket implementations for algebraic structures, from basic ones like magmas to more
-complex ones like fields. It leans heavily on the basic traits available in std::ops and num_traits.
+complex ones like fields, vector spaces, and tensors. It defines a comprehensive hierarchy of mathematical abstractions, organized in a modular structure that follows the natural progression of abstract algebra. It leans heavily on the basic traits available in std::ops and num_traits while adding rich mathematical documentation with formal definitions.
 
 ## Table of Contents
 
@@ -78,6 +78,11 @@ Rust's unique features like zero-cost abstractions and powerful type system.
 - Blanket implementations to reduce boilerplate code
 - Support for both built-in and custom types
 - Zero-cost abstractions leveraging Rust's type system
+- Modular organization by mathematical domain
+- Comprehensive UTF-8 mathematical documentation with formal definitions
+- Type-level dimension handling for compile-time dimensional analysis
+- Linear algebra abstractions including vector spaces, modules, and tensors
+- Advanced structures like bilinear forms and tensor products
 
 ## Installation
 
@@ -85,7 +90,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-noether = "0.1.0"
+noether = "0.3.0"
 ```
 
 ## Usage
@@ -328,6 +333,16 @@ polymorphism allows for efficient, monomorphized code when used with concrete ty
 However, as with any abstract library, be aware that extensive use of dynamic dispatch (e.g., through trait objects) may
 incur some runtime cost. In most cases, the compiler can optimize away the abstractions, resulting in performance
 equivalent to hand-written implementations.
+
+## Roadmap
+
+For detailed development plans, see the [ROADMAP.md](ROADMAP.md) file, which outlines future directions including:
+
+- Core algebraic traits and properties
+- Category theory foundations
+- Advanced algebraic systems
+- Abstract linear algebra and multilinear algebra
+- Type system improvements for compile-time verification
 
 ## Contributing
 
