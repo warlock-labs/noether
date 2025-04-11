@@ -19,21 +19,12 @@ pub mod spaces;
 pub mod tensors;
 
 // Re-export the most commonly used traits
-pub use dimensions::{Dim, Dimension, IsEven, Shape};
-pub use fields::{Field, FieldExtension, FiniteField, OrderedField, RealField};
-pub use groups::{
-    AdditiveAbelianGroup, AdditiveGroup, AdditiveMagma, AdditiveMonoid, AdditiveSemigroup,
-    MultiplicativeAbelianGroup, MultiplicativeGroup, MultiplicativeMagma, MultiplicativeMonoid,
-    MultiplicativeSemigroup,
-};
-pub use linear::{BilinearForm, LinearMap, SymmetricBilinearForm};
-pub use operations::{
-    AssociativeAddition, AssociativeMultiplication, CommutativeAddition, CommutativeMultiplication,
-    Distributive,
-};
-pub use rings::{
-    CommutativeRing, IntegralDomain, PrincipalIdealDomain, Ring, UniqueFactorizationDomain,
-};
-pub use sets::Set;
-pub use spaces::{FreeModule, InnerProductSpace, Module, NormedVectorSpace, VectorSpace};
-pub use tensors::{EinsteinSummation, TensorProduct, TensorSpace};
+pub use dimensions::*;
+pub use fields::*;
+pub use groups::*;
+pub use linear::*;
+pub use operations::*;
+pub use rings::*;
+pub use sets::*;
+pub use spaces::*;
+pub use tensors::*;
