@@ -34,14 +34,14 @@ pub trait Dimension: 'static {
 /// Type-level dimension representation.
 ///
 /// # Mathematical Definition
-/// Represents a fixed dimension N as a zero-sized type, allowing dimensions 
+/// Represents a fixed dimension N as a zero-sized type, allowing dimensions
 /// to be tracked at the type level with no runtime overhead.
 ///
 /// # Properties
 /// - Zero-sized type (ZST) with no runtime cost
 /// - Implements the Dimension trait, exposing the value N
 /// - Can be used as a type parameter to dimension-parameterized types
-/// - Example: A vector space of dimension N can be represented as Vector<Dim<N>>
+/// - Example: A vector space of dimension N can be represented as `Vector<Dim<N>>`
 pub struct Dim<const N: usize>;
 
 impl<const N: usize> Dimension for Dim<N> {

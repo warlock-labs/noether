@@ -13,7 +13,7 @@ complex ones like fields. It leans heavily on the basic traits available in std:
 ## Table of Contents
 
 - [Background](#background)
-    - [Inspirations](#inspirations)
+  - [Inspirations](#inspirations)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -263,29 +263,6 @@ complex:
 - (Commutativity) $\forall a, b \in S, a \bullet b = b \bullet a$ - Marker trait
 - (Associativity) $\forall a, b, c \in S, (a \bullet b) \bullet c = a \bullet (b \bullet c)$ - Marker trait
 - (Distributivity) $\forall a, b, c \in S, a * (b + c) = (a * b) + (a * c)$ - Marker trait
-
-Additional properties to be implemented:
-
-- (Idempotence) $\forall a \in S, a \bullet a = a$
-- (Identity) $\exists e \in S, \forall a \in S, e \bullet a = a \bullet e = a$
-- (Inverses) $\forall a \in S, \exists b \in S, a \bullet b = b \bullet a = e$ (where $e$ is the identity)
-- (Cancellation) $\forall a, b, c \in S, a \bullet b = a \bullet c \Rightarrow b = c$ ($a \neq 0$ if $\exists$ zero
-  element)
-- (Divisibility) $\forall a, b \in S, \exists x \in S, a \bullet x = b$
-- (Regularity) $\forall a \in S, \exists x \in S, a \bullet x \bullet a = a$
-- (Alternativity) $\forall a, b \in S, (a \bullet a) \bullet b = a \bullet (a \bullet b) \wedge (b \bullet a) \bullet
-  a = b \bullet (a \bullet a)$
-- (Absorption) $\forall a, b \in S, a * (a + b) = a \wedge a + (a * b) = a$
-- (Monotonicity) $\forall a, b, c \in S, a \leq b \Rightarrow a \bullet c \leq b \bullet c \wedge c \bullet a \leq c
-  \bullet b$
-- (Modularity) $\forall a, b, c \in S, a \leq c \Rightarrow a \vee (b \wedge c) = (a \vee b) \wedge c$
-- (Switchability) $\forall x, y, z \in S, (x + y) * z = x + (y * z)$
-- (Min/Max Ops) $\forall a, b \in S, a \vee b = \min\{a,b\}, a \wedge b = \max\{a,b\}$
-- (Defect Op) $\forall a, b \in S, a *_3 b = a + b - 3$
-- (Continuity) $\forall V \subseteq S$ open, $f^{-1}(V)$ is open (for $f: S \rightarrow S, S$ topological)
-- (Solvability) $\exists$ series $\{G_i\} | G = G_0 \triangleright G_1 \triangleright \ldots \triangleright G_n =
-  \{e\}, [G_i, G_i] \leq G_{i+1}$
-- (Alg. Closure) $\forall p(x) \in S[x]$ non-constant, $\exists a \in S | p(a) = 0$
 
 The traits and blanket implementations provided serve several important purposes:
 

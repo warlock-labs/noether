@@ -16,7 +16,7 @@ use crate::spaces::VectorSpace;
 /// Represents a linear map (linear transformation) between vector spaces.
 ///
 /// # Mathematical Definition
-/// Let V and W be vector spaces over a field F. A linear map T: V → W is a function 
+/// Let V and W be vector spaces over a field F. A linear map T: V → W is a function
 /// satisfying the following properties for all u, v ∈ V and α ∈ F:
 ///
 /// 1. T(u + v) = T(u) + T(v) (additivity)
@@ -41,7 +41,7 @@ pub trait LinearMap<F: Field, V: VectorSpace<F>, W: VectorSpace<F>> {
 /// Represents a bilinear form on a vector space.
 ///
 /// # Mathematical Definition
-/// Given a vector space V over a field F, a bilinear form B: V × V → F is a function 
+/// Given a vector space V over a field F, a bilinear form B: V × V → F is a function
 /// satisfying the following properties for all u, v, w ∈ V and α, β ∈ F:
 ///
 /// 1. B(αu + βv, w) = αB(u, w) + βB(v, w) (linearity in first argument)

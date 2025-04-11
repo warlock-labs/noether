@@ -78,9 +78,9 @@ pub trait AssociativeMultiplication {}
 /// Marker trait for distributive multiplication over addition.
 ///
 /// # Mathematical Definition
-/// Let (S, +, ·) be an algebraic structure with two operations. Multiplication 
+/// Let (S, +, ·) be an algebraic structure with two operations. Multiplication
 /// distributes over addition if:
-/// 
+///
 /// For all a, b, c ∈ S:
 /// - Left distributivity: a · (b + c) = (a · b) + (a · c)
 /// - Right distributivity: (a + b) · c = (a · c) + (b · c)

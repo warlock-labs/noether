@@ -21,8 +21,8 @@ use crate::rings::Ring;
 /// Represents a module over a ring R.
 ///
 /// # Mathematical Definition
-/// A module M over a ring R is an additive abelian group (M, +) together with 
-/// a scalar multiplication operation R × M → M, denoted (r, m) ↦ r·m, 
+/// A module M over a ring R is an additive abelian group (M, +) together with
+/// a scalar multiplication operation R × M → M, denoted (r, m) ↦ r·m,
 /// satisfying the following axioms for all r, s ∈ R and m, n ∈ M:
 ///
 /// 1. r·(m + n) = r·m + r·n
@@ -72,8 +72,8 @@ pub trait FreeModule<R: Ring>: Module<R> {
 /// Represents a Vector Space over a field.
 ///
 /// # Mathematical Definition
-/// A vector space V over a field F is an additive abelian group (V, +) equipped with a scalar 
-/// multiplication operation F × V → V, denoted (α, v) ↦ α·v, satisfying the following 
+/// A vector space V over a field F is an additive abelian group (V, +) equipped with a scalar
+/// multiplication operation F × V → V, denoted (α, v) ↦ α·v, satisfying the following
 /// axioms for all α, β ∈ F and u, v ∈ V:
 ///
 /// 1. α·(u + v) = α·u + α·v (distributivity of scalar multiplication over vector addition)
@@ -143,7 +143,7 @@ pub trait InnerProductSpace<F: Field>: VectorSpace<F> {
 /// Represents a normed vector space.
 ///
 /// # Mathematical Definition
-/// A normed vector space (V, ||·||) is a vector space V over a field F equipped with 
+/// A normed vector space (V, ||·||) is a vector space V over a field F equipped with
 /// a norm function ||·||: V → ℝ₊ satisfying the following axioms for all u, v ∈ V and α ∈ F:
 ///
 /// 1. ||v|| ≥ 0 for all v ∈ V (non-negativity)

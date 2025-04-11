@@ -17,7 +17,7 @@ use crate::spaces::VectorSpace;
 /// Represents a tensor product of vector spaces.
 ///
 /// # Mathematical Definition
-/// Given vector spaces V and W over a field F, their tensor product V ⊗ W is a vector space 
+/// Given vector spaces V and W over a field F, their tensor product V ⊗ W is a vector space
 /// equipped with a bilinear map ⊗: V × W → V ⊗ W satisfying the universal property:
 ///
 /// For any vector space U and any bilinear map f: V × W → U, there exists a unique linear map
@@ -42,12 +42,12 @@ pub trait TensorProduct<F: Field, V: VectorSpace<F>, W: VectorSpace<F>> {
 /// A tensor of rank (r,s) over a vector space V is a multilinear map:
 /// T: V* × ... × V* × V × ... × V → F
 ///    ⌊--- r ---⌋  ⌊--- s ---⌋
-/// 
+///
 /// where V* is the dual space of V, taking r dual vectors and s vectors as input.
 ///
 /// # Properties
 /// - The rank (r,s) indicates the number of contravariant and covariant indices
-/// - A tensor of rank (0,0) is a scalar, (0,1) is a vector, (1,0) is a covector, 
+/// - A tensor of rank (0,0) is a scalar, (0,1) is a vector, (1,0) is a covector,
 ///   (0,2) is a bilinear form, (1,1) is a linear operator
 /// - Operations include tensor product, contraction, and index manipulation
 /// - Forms the mathematical foundation for general relativity and quantum field theory
