@@ -303,6 +303,12 @@ impl<F: Field + Clone + 'static> Module<F> for Vector<F> {
         Self { elements: result }
     }
 
+    fn zero() -> Self {
+        // For a default zero vector, we use an empty vector
+        // In practice, we'd often use zero_like() with a specific dimension
+        Self { elements: vec![] }
+    }
+
     fn is_free() -> bool {
         true // Our vectors always have a basis
     }
@@ -337,6 +343,34 @@ impl<F: Field + Clone + 'static> VectorSpace<F> for Vector<F> {
     fn dimension() -> usize {
         // This would be overridden by concrete types with specific dimensions
         Self::rank()
+    }
+
+    fn shape(&self) -> Vec<usize> {
+        // For a simple vector, the shape is [n] where n is the dimension
+        vec![self.dim()]
+    }
+
+    fn scale(&self, scalar: &F) -> Self {
+        // Reuse our existing scale implementation
+        let mut result = Vec::with_capacity(self.dim());
+        for i in 0..self.dim() {
+            result.push(self.elements[i].clone() * scalar.clone());
+        }
+        Self { elements: result }
+    }
+
+    fn zero_like(&self) -> Self {
+        // Create a zero vector with the same dimension
+        Self {
+            elements: vec![F::zero(); self.dim()],
+        }
+    }
+
+    fn ones_like(&self) -> Self {
+        // Create a vector of ones with the same dimension
+        Self {
+            elements: vec![F::one(); self.dim()],
+        }
     }
 
     fn basis() -> Vec<Self> {

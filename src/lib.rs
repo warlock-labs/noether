@@ -17,7 +17,6 @@ pub mod primitives;
 pub mod rings;
 pub mod sets;
 pub mod spaces;
-pub mod tensors;
 
 // Re-export the most commonly used traits
 pub use dimensions::*;
@@ -28,4 +27,3 @@ pub use operations::*;
 pub use rings::*;
 pub use sets::*;
 pub use spaces::*;
-pub use tensors::*;

@@ -1,22 +1,199 @@
-//! Vector spaces and modules.
+//! Vector spaces and related algebraic structures.
 //!
-//! This module provides traits for vector spaces, modules, and related algebraic structures.
-//! These structures are fundamental in linear algebra and representation theory.
+//! This module provides traits for vector spaces and their specializations
+//! that are compatible with multidimensional array implementations.
 //!
-//! # Module Theory
+//! # Vector Space Structures
 //!
-//! Modules generalize vector spaces by allowing scalars from a ring (rather than a field).
-//! The key structures in this hierarchy are:
-//!
-//! - **Module**: An additive abelian group with scalar multiplication from a ring
-//! - **Free Module**: A module with a basis of linearly independent elements
-//! - **Vector Space**: A module over a field
-//! - **Inner Product Space**: A vector space with a bilinear form for computing angles/distances
-//! - **Normed Vector Space**: A vector space with a norm function for measuring vector lengths
+//! - **Module**: A structure with scalar multiplication from a ring
+//! - **FreeModule**: A module with a basis
+//! - **VectorSpace**: A space supporting scalar multiplication and vector operations
+//! - **InnerProductSpace**: A vector space with an inner product operation
+//! - **NormedVectorSpace**: A vector space with a norm function
+//! - **EuclideanSpace**: A vector space with Euclidean properties
 
 use crate::fields::Field;
 use crate::groups::AdditiveAbelianGroup;
 use crate::rings::Ring;
+use num_traits::{One, Zero};
+use std::ops::{Add, Neg, Sub};
+
+/// Represents a vector space over a field.
+///
+/// # Mathematical Definition
+/// A vector space V over a field F is a set equipped with vector addition
+/// and scalar multiplication operations, satisfying the vector space axioms:
+///
+/// 1. (u + v) + w = u + (v + w) for all u, v, w ∈ V (associativity of addition)
+/// 2. v + u = u + v for all u, v ∈ V (commutativity of addition)
+/// 3. There exists 0 ∈ V such that v + 0 = v for all v ∈ V (zero vector)
+/// 4. For each v ∈ V, there exists -v ∈ V such that v + (-v) = 0 (additive inverse)
+/// 5. a(bv) = (ab)v for all a, b ∈ F and v ∈ V (compatibility of scalar multiplication)
+/// 6. 1v = v for all v ∈ V, where 1 is the multiplicative identity in F
+/// 7. a(u + v) = au + av for all a ∈ F and u, v ∈ V (distributivity over vector addition)
+/// 8. (a + b)v = av + bv for all a, b ∈ F and v ∈ V (distributivity over field addition)
+///
+/// # Properties
+/// - Supports operations like addition, subtraction, and scalar multiplication
+/// - Elements can be represented as linear combinations of basis vectors
+/// - The number of basis elements determines the dimension of the space
+pub trait VectorSpace<F: Field>:
+    Add<Output = Self> + Sub<Output = Self> + Neg<Output = Self> + Sized + Clone
+{
+    /// Get the dimension of this vector space
+    fn dimension() -> usize;
+
+    /// Get the shape of this vector (if multidimensional)
+    fn shape(&self) -> Vec<usize>;
+
+    /// Multiply the vector by a scalar
+    fn scale(&self, scalar: &F) -> Self;
+
+    /// Create a zero vector of the same shape as this vector
+    fn zero_like(&self) -> Self;
+
+    /// Create a vector filled with ones of the same shape as this vector
+    fn ones_like(&self) -> Self;
+
+    /// Get a basis for this vector space
+    fn basis() -> Vec<Self>;
+
+    /// Compute the linear combination of vectors with their corresponding scalars
+    fn linear_combination<I: IntoIterator<Item = (F, Self)>>(items: I) -> Option<Self>
+    where
+        F: Zero + Clone,
+    {
+        let mut iter = items.into_iter();
+
+        // Get the first item to determine the shape
+        if let Some((scalar, vector)) = iter.next() {
+            let mut result = vector.scale(&scalar);
+
+            // Add remaining scaled vectors
+            for (scalar, vector) in iter {
+                result = result + vector.scale(&scalar);
+            }
+
+            Some(result)
+        } else {
+            None
+        }
+    }
+}
+
+/// Represents an inner product space.
+///
+/// # Mathematical Definition
+/// An inner product space is a vector space equipped with an inner product operation
+/// that allows for notions of length, angle, and orthogonality.
+///
+/// The inner product ⟨·,·⟩ satisfies:
+/// 1. ⟨u, v⟩ = ⟨v, u⟩* (conjugate symmetry)
+/// 2. ⟨au + bv, w⟩ = a⟨u, w⟩ + b⟨v, w⟩ (linearity in first argument)
+/// 3. ⟨v, v⟩ > 0 for all v ≠ 0 (positive definiteness)
+///
+/// # Properties
+/// - Induces a natural norm: ||v|| = √⟨v, v⟩
+/// - Allows definition of angles between vectors
+/// - Enables orthogonal decompositions
+pub trait InnerProductSpace<F: Field>: VectorSpace<F> {
+    /// Compute the inner product between two vectors
+    fn inner_product(&self, other: &Self) -> F;
+
+    /// Compute the squared norm of a vector (avoid sqrt when possible)
+    fn squared_norm(&self) -> F {
+        self.inner_product(self)
+    }
+
+    /// Compute the norm (length) of a vector
+    fn norm(&self) -> F;
+
+    /// Normalize a vector to unit length
+    fn normalize(&self) -> Self
+    where
+        F: One + Zero,
+    {
+        let norm = self.norm();
+        if norm == F::zero() {
+            self.clone()
+        } else {
+            let one_over_norm = F::one() / norm;
+            self.scale(&one_over_norm)
+        }
+    }
+
+    /// Compute the distance between two vectors
+    fn distance(&self, other: &Self) -> F {
+        let diff = self.clone() - other.clone();
+        diff.norm()
+    }
+
+    /// Check if two vectors are orthogonal
+    fn is_orthogonal(&self, other: &Self) -> bool
+    where
+        F: Zero,
+    {
+        self.inner_product(other) == F::zero()
+    }
+}
+
+/// Represents a normed vector space.
+///
+/// # Mathematical Definition
+/// A normed vector space is a vector space equipped with a norm function
+/// that assigns a non-negative length to each vector.
+///
+/// # Properties
+/// - The norm satisfies: ||v|| ≥ 0, ||v|| = 0 iff v = 0, ||av|| = |a|·||v||, ||u+v|| ≤ ||u||+||v||
+/// - Induces a metric: d(u,v) = ||u-v||
+/// - Every inner product space is a normed space, but not vice versa
+pub trait NormedVectorSpace<F: crate::fields::OrderedField>: VectorSpace<F> {
+    /// Compute the norm (length) of a vector
+    fn norm(&self) -> F;
+
+    /// Normalize a vector to unit length
+    fn normalize(&self) -> Self
+    where
+        F: One + Zero,
+    {
+        let norm = self.norm();
+        if norm == F::zero() {
+            self.clone()
+        } else {
+            let one_over_norm = F::one() / norm;
+            self.scale(&one_over_norm)
+        }
+    }
+
+    /// Compute the distance between two vectors
+    fn distance(&self, other: &Self) -> F {
+        let diff = self.clone() - other.clone();
+        diff.norm()
+    }
+}
+
+/// Represents a Euclidean space.
+///
+/// # Mathematical Definition
+/// A Euclidean space is a finite-dimensional inner product space over the real numbers,
+/// equipped with the standard Euclidean inner product.
+///
+/// # Properties
+/// - Has a natural notion of distance and angle
+/// - Can be identified with R^n for some n
+/// - Supports geometric operations like orthogonal projections
+pub trait EuclideanSpace<F: crate::fields::RealField>:
+    InnerProductSpace<F> + NormedVectorSpace<F>
+{
+    /// Project one vector onto another
+    fn project_onto(&self, other: &Self) -> Self
+    where
+        F: Zero + Clone,
+    {
+        let scalar = self.inner_product(other) / other.squared_norm();
+        other.scale(&scalar)
+    }
+}
 
 /// Represents a module over a ring R.
 ///
@@ -35,8 +212,11 @@ use crate::rings::Ring;
 /// - Includes vector spaces, abelian groups, and ideals as special cases
 /// - Examples: R-modules, Z-modules (abelian groups), vector spaces over fields
 pub trait Module<R: Ring>: AdditiveAbelianGroup {
-    /// Performs scalar multiplication
+    /// Multiply by a scalar from the ring
     fn scale(&self, r: &R) -> Self;
+
+    /// Create a zero element of this module
+    fn zero() -> Self;
 
     /// Checks if this module is free (has a basis)
     fn is_free() -> bool;
@@ -49,123 +229,17 @@ pub trait Module<R: Ring>: AdditiveAbelianGroup {
 /// generating set). For any set S, the free module on S over R, denoted R⟨S⟩, is a module
 /// with basis elements indexed by S.
 ///
-/// Formally, a module F is free if there exists a set S and an injection ι: S → F such that
-/// for any module M and any function f: S → M, there exists a unique module homomorphism
-/// φ: F → M such that f = φ ∘ ι.
-///
 /// # Properties
 /// - Every element can be written uniquely as a linear combination of basis elements
 /// - The dimension (or rank) is the cardinality of any basis
 /// - Examples: Rⁿ is a free module over R, vector spaces are free modules over fields
-/// - Free modules generalize the concept of vector spaces to modules over arbitrary rings
 pub trait FreeModule<R: Ring>: Module<R> {
-    /// Returns the rank (dimension) of the free module
+    /// Get the rank (dimension) of this free module
     fn rank() -> usize;
 
-    /// Returns a basis element by index
+    /// Get a basis element by index
     fn basis_element(index: usize) -> Self;
 
-    /// Expresses a vector in terms of the basis (coordinate representation)
+    /// Express this element in terms of the basis
     fn coordinates(&self) -> Vec<R>;
 }
-
-/// Represents a Vector Space over a field.
-///
-/// # Mathematical Definition
-/// A vector space V over a field F is an additive abelian group (V, +) equipped with a scalar
-/// multiplication operation F × V → V, denoted (α, v) ↦ α·v, satisfying the following
-/// axioms for all α, β ∈ F and u, v ∈ V:
-///
-/// 1. α·(u + v) = α·u + α·v (distributivity of scalar multiplication over vector addition)
-/// 2. (α + β)·v = α·v + β·v (distributivity of scalar multiplication over field addition)
-/// 3. (α·β)·v = α·(β·v) (compatibility with field multiplication)
-/// 4. 1·v = v (scalar identity)
-///
-/// # Properties
-/// - A vector space is a module over a field
-/// - Every vector space has a basis and is therefore a free module
-/// - The dimension of a vector space is the cardinality of any basis
-/// - Examples: Rⁿ, function spaces, polynomial spaces, matrix spaces
-/// - Vector spaces are foundational to linear algebra and functional analysis
-pub trait VectorSpace<F: Field>: Module<F> {
-    /// Returns the dimension of the vector space
-    fn dimension() -> usize;
-
-    /// Returns a basis for the vector space
-    fn basis() -> Vec<Self>;
-
-    /// Computes the linear combination of vectors
-    fn linear_combination<I: IntoIterator<Item = (F, Self)>>(items: I) -> Self {
-        let mut result = Self::zero();
-        for (scalar, vector) in items {
-            let scaled = vector.scale(&scalar);
-            result += scaled;
-        }
-        result
-    }
-}
-
-/// Represents an inner product space.
-///
-/// # Mathematical Definition
-/// An inner product space (V, ⟨·,·⟩) is a vector space V over a field F (typically ℝ or ℂ)
-/// equipped with an inner product ⟨·,·⟩: V × V → F satisfying the following axioms
-/// for all u, v, w ∈ V and α ∈ F:
-///
-/// 1. ⟨u, v⟩ = ⟨v, u⟩* (conjugate symmetry, where * denotes complex conjugation)
-/// 2. ⟨αu, v⟩ = α⟨u, v⟩ (linearity in first argument)
-/// 3. ⟨u + v, w⟩ = ⟨u, w⟩ + ⟨v, w⟩ (additivity in first argument)
-/// 4. ⟨v, v⟩ ≥ 0 for all v ∈ V (non-negativity)
-/// 5. ⟨v, v⟩ = 0 if and only if v = 0 (positive definiteness)
-///
-/// # Properties
-/// - Induces a norm through ||v|| = √⟨v, v⟩
-/// - Enables concepts of angle and orthogonality between vectors
-/// - Generalizes the dot product in Euclidean space
-/// - Examples: Euclidean spaces, function spaces with L² inner product, Hilbert spaces
-pub trait InnerProductSpace<F: Field>: VectorSpace<F> {
-    /// Computes the inner product ⟨self, other⟩ of two vectors
-    fn inner_product(&self, other: &Self) -> F;
-
-    /// Computes the norm ||self|| = √⟨self, self⟩ of a vector
-    fn norm(&self) -> F;
-
-    /// Normalizes a vector to unit length: v/||v||
-    fn normalize(&self) -> Self;
-
-    /// Computes the distance ||self - other|| between two vectors
-    fn distance(&self, other: &Self) -> F;
-
-    /// Checks if two vectors are orthogonal (⟨self, other⟩ = 0)
-    fn is_orthogonal(&self, other: &Self) -> bool;
-}
-
-/// Represents a normed vector space.
-///
-/// # Mathematical Definition
-/// A normed vector space (V, ||·||) is a vector space V over a field F equipped with
-/// a norm function ||·||: V → ℝ₊ satisfying the following axioms for all u, v ∈ V and α ∈ F:
-///
-/// 1. ||v|| ≥ 0 for all v ∈ V (non-negativity)
-/// 2. ||v|| = 0 if and only if v = 0 (positive definiteness)
-/// 3. ||αv|| = |α|·||v|| (homogeneity)
-/// 4. ||u + v|| ≤ ||u|| + ||v|| (triangle inequality)
-///
-/// # Properties
-/// - Makes the vector space into a metric space with distance d(u,v) = ||u-v||
-/// - Generalizes the concept of "length" or "magnitude" to abstract vector spaces
-/// - Weaker structure than an inner product space (every inner product induces a norm)
-/// - Examples: Lᵖ spaces, spaces of continuous functions with supremum norm
-pub trait NormedVectorSpace<F: crate::fields::OrderedField>: VectorSpace<F> {
-    /// Computes the norm ||self|| of a vector
-    fn norm(&self) -> F;
-
-    /// Normalizes a vector to unit length: v/||v||
-    fn normalize(&self) -> Self;
-
-    /// Computes the distance ||self - other|| between two vectors
-    fn distance(&self, other: &Self) -> F;
-}
-
-// VectorSpace
-// Note: This cannot be implemented as a blanket impl because it requires specific vector space structure
