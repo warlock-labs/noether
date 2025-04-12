@@ -325,12 +325,398 @@ fn polynomial_evaluation<F: Field>(coefficients: &[F], x: F) -> F {
 You can use this function with any type that implements the `Field` trait, whether it's a built-in numeric type or a
 custom type like our `Z5` from the earlier example.
 
+### Integrating External Numeric Types
+
+Noether can be extended to work with third-party numeric types by creating wrappers that implement the appropriate traits. This section demonstrates how to integrate external numeric libraries with Noether's type system.
+
+#### Example: Complex Numbers
+
+Here's an example of how to wrap the `num_complex` crate's `Complex` type to work with Noether's algebraic structure traits:
+
+````rust
+use noether::operations::{
+    CommutativeAddition, AssociativeAddition,
+    CommutativeMultiplication, AssociativeMultiplication, Distributive
+};
+use noether::fields::FieldExtension;
+use noether::spaces::VectorSpace;
+use num_traits::{Num, One, Zero};
+use std::ops::{Add, Mul, Div, Neg};
+
+/// A wrapper around `num_complex::Complex` that implements Noether's algebraic traits.
+///
+/// This wrapper provides a complex number implementation that satisfies Noether's
+/// algebraic structure traits, including `Field` and `FieldExtension` traits.
+///
+/// # Type Parameters
+///
+/// * `T` - The type of the real and imaginary parts.
+///
+/// # Examples
+///
+/// ```
+/// use noether::primitives::Complex;
+///
+/// // Create a complex number
+/// let z = Complex::<f64>::new(3.0, 4.0);
+/// let w = Complex::<f64>::new(1.0, 2.0);
+///
+/// // Perform field operations
+/// let sum = z + w;
+/// let product = z * w;
+/// let quotient = z / w;
+/// ```
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Complex<T> {
+   /// The underlying complex number from the num_complex crate
+   inner: num_complex::Complex<T>,
+}
+
+impl<T: Clone + Num> Complex<T> {
+   /// Creates a new complex number with the given real and imaginary parts.
+   pub fn new(re: T, im: T) -> Self {
+      Self {
+         inner: num_complex::Complex::new(re, im),
+      }
+   }
+
+   /// Creates a new complex number from a real value (imaginary part is zero).
+   pub fn from_real(re: T) -> Self {
+      Self {
+         inner: num_complex::Complex::new(re, T::zero()),
+      }
+   }
+
+   /// Creates the imaginary unit (0 + 1i).
+   pub fn i() -> Self {
+      Self {
+         inner: num_complex::Complex::new(T::zero(), T::one()),
+      }
+   }
+
+   /// Returns the real part of the complex number.
+   pub fn re(&self) -> &T {
+      &self.inner.re
+   }
+
+   /// Returns the imaginary part of the complex number.
+   pub fn im(&self) -> &T {
+      &self.inner.im
+   }
+
+   /// Returns the complex conjugate (re - i*im).
+   pub fn conj(&self) -> Self
+   where
+           T: Neg<Output = T>
+   {
+      Self {
+         inner: num_complex::Complex::new(
+            self.inner.re.clone(),
+            -self.inner.im.clone(),
+         ),
+      }
+   }
+
+   /// Returns the squared norm (|z|²) of the complex number.
+   pub fn norm_sqr(&self) -> T {
+      self.inner.re.clone() * self.inner.re.clone() +
+              self.inner.im.clone() * self.inner.im.clone()
+   }
+}
+
+// Implement the standard arithmetic operations by delegating to the inner Complex type
+
+impl<T: Clone + Num> Add for Complex<T> {
+   type Output = Self;
+
+   fn add(self, other: Self) -> Self::Output {
+      Self {
+         inner: self.inner + other.inner,
+      }
+   }
+}
+
+impl<T: Clone + Num + AddAssign> AddAssign for Complex<T> {
+   fn add_assign(&mut self, other: Self) {
+      // Implement manually since num_complex might not have all the required traits
+      self.inner.re += other.inner.re;
+      self.inner.im += other.inner.im;
+   }
+}
+
+impl<T: Clone + Num> Sub for Complex<T> {
+   type Output = Self;
+
+   fn sub(self, other: Self) -> Self::Output {
+      Self {
+         inner: self.inner - other.inner,
+      }
+   }
+}
+
+impl<T: Clone + Num + SubAssign> SubAssign for Complex<T> {
+   fn sub_assign(&mut self, other: Self) {
+      // Implement manually
+      self.inner.re -= other.inner.re;
+      self.inner.im -= other.inner.im;
+   }
+}
+
+impl<T: Clone + Num> Mul for Complex<T> {
+   type Output = Self;
+
+   fn mul(self, other: Self) -> Self::Output {
+      Self {
+         inner: self.inner * other.inner,
+      }
+   }
+}
+
+impl<T: Clone + Num + AddAssign + SubAssign + MulAssign> MulAssign for Complex<T> {
+   fn mul_assign(&mut self, other: Self) {
+      // Manual implementation of complex multiplication
+      let a = self.inner.re.clone();
+      let b = self.inner.im.clone();
+      let c = other.inner.re;
+      let d = other.inner.im;
+
+      // (a + bi) * (c + di) = (ac - bd) + (ad + bc)i
+      let ac = a.clone() * c.clone();
+      let bd = b.clone() * d.clone();
+      let ad = a * d;
+      let bc = b * c;
+
+      self.inner.re = ac - bd;
+      self.inner.im = ad + bc;
+   }
+}
+
+impl<T: Clone + Num> Div for Complex<T> {
+   type Output = Self;
+
+   fn div(self, other: Self) -> Self::Output {
+      Self {
+         inner: self.inner / other.inner,
+      }
+   }
+}
+
+impl<T: Clone + Num + AddAssign + SubAssign + MulAssign + DivAssign> DivAssign for Complex<T> {
+   fn div_assign(&mut self, other: Self) {
+      // Manual implementation of complex division
+      let a = self.inner.re.clone();
+      let b = self.inner.im.clone();
+      let c = other.inner.re.clone();
+      let d = other.inner.im.clone();
+
+      // Compute denominator: |c + di|^2 = c^2 + d^2
+      let denom = c.clone() * c.clone() + d.clone() * d.clone();
+
+      // (a + bi) / (c + di) = ((ac + bd) + (bc - ad)i) / (c^2 + d^2)
+      let ac_plus_bd = a.clone() * c.clone() + b.clone() * d.clone();
+      let bc_minus_ad = b * c - a * d;
+
+      self.inner.re = ac_plus_bd / denom.clone();
+      self.inner.im = bc_minus_ad / denom;
+   }
+}
+
+impl<T: Clone + Num + Neg<Output = T>> Neg for Complex<T> {
+   type Output = Self;
+
+   fn neg(self) -> Self::Output {
+      Self {
+         inner: num_complex::Complex::new(-self.inner.re, -self.inner.im),
+      }
+   }
+}
+
+impl<T: Clone + Num> Rem for Complex<T> {
+   type Output = Self;
+
+   fn rem(self, other: Self) -> Self::Output {
+      // Simple implementation, not mathematically ideal
+      let div = self.clone() / other.clone();
+      self - div * other
+   }
+}
+
+impl<T: Clone + Num + RemAssign> RemAssign for Complex<T> {
+   fn rem_assign(&mut self, other: Self) {
+      // Simple implementation - not mathematically ideal for complex numbers
+      let remainder = self.clone() % other;
+      self.inner.re = remainder.inner.re;
+      self.inner.im = remainder.inner.im;
+   }
+}
+
+impl<T: Clone + Num> Zero for Complex<T> {
+   fn zero() -> Self {
+      Self {
+         inner: num_complex::Complex::new(T::zero(), T::zero()),
+      }
+   }
+
+   fn is_zero(&self) -> bool {
+      self.inner.re.is_zero() && self.inner.im.is_zero()
+   }
+}
+
+impl<T: Clone + Num> One for Complex<T> {
+   fn one() -> Self {
+      Self {
+         inner: num_complex::Complex::new(T::one(), T::zero()),
+      }
+   }
+
+   fn is_one(&self) -> bool {
+      self.inner.re.is_one() && self.inner.im.is_zero()
+   }
+}
+
+// Implement num_traits::Inv for Complex
+impl<T: Clone + Num + Neg<Output = T>> num_traits::Inv for Complex<T> {
+   type Output = Self;
+
+   fn inv(self) -> Self::Output {
+      let norm_sqr = self.norm_sqr();
+      Self {
+         inner: num_complex::Complex::new(
+            self.inner.re / norm_sqr.clone(),
+            -self.inner.im / norm_sqr
+         ),
+      }
+   }
+}
+
+// Implement Euclid trait for Euclidean division
+impl<T: Clone + Num + Euclid> Euclid for Complex<T> {
+   fn div_euclid(&self, v: &Self) -> Self {
+      // This is a simplified version; more sophisticated implementations
+      // would use Gaussian integer division when appropriate
+      let quotient = Self {
+         inner: self.inner.clone() / v.inner.clone(),
+      };
+      // Technically we should round this to the nearest Gaussian integer
+      // but for simplicity, we'll just use the result directly
+      quotient
+   }
+
+   fn rem_euclid(&self, v: &Self) -> Self {
+      // a % b = a - (a/b).div_euclid() * b
+      let q = self.div_euclid(v);
+      self.clone() - q * v.clone()
+   }
+}
+
+// Implement Noether's algebraic marker traits for Complex
+impl<T: Clone + Num> CommutativeAddition for Complex<T> {}
+impl<T: Clone + Num> AssociativeAddition for Complex<T> {}
+impl<T: Clone + Num> CommutativeMultiplication for Complex<T> {}
+impl<T: Clone + Num> AssociativeMultiplication for Complex<T> {}
+impl<T: Clone + Num> Distributive for Complex<T> {}
+
+// Special implementation for f64 which satisfies all the trait requirements
+// This allows us to specifically implement VectorSpace and FieldExtension for Complex<f64>
+impl VectorSpace<f64> for Complex<f64> {
+   fn dimension() -> usize {
+      2 // Complex numbers form a 2-dimensional vector space over the reals
+   }
+
+   fn shape(&self) -> Vec<usize> {
+      vec![2] // Shape is just a 1D vector of size 2
+   }
+
+   fn scale(&self, scalar: &f64) -> Self {
+      Self {
+         inner: num_complex::Complex::new(
+            self.inner.re * scalar,
+            self.inner.im * scalar,
+         ),
+      }
+   }
+
+   fn zero_like(&self) -> Self {
+      Self::zero()
+   }
+
+   fn ones_like(&self) -> Self {
+      Self::one()
+   }
+
+   fn basis() -> Vec<Self> {
+      vec![Self::one(), Self::i()] // Standard basis for complex numbers: {1, i}
+   }
+}
+
+// Special implementation for f64 which satisfies all the trait requirements
+impl FieldExtension for Complex<f64> {
+   type BaseField = f64;
+
+   fn degree() -> usize {
+      2 // Complex numbers have degree 2 over the reals
+   }
+
+   fn trace(&self) -> Self::BaseField {
+      // The trace of a complex number a+bi is 2a
+      self.inner.re + self.inner.re
+   }
+
+   fn norm(&self) -> Self::BaseField {
+      // The norm of a complex number a+bi is a² + b²
+      self.norm_sqr()
+   }
+}
+
+// Similar implementations for f32
+impl VectorSpace<f32> for Complex<f32> {
+   fn dimension() -> usize { 2 }
+   fn shape(&self) -> Vec<usize> { vec![2] }
+   fn scale(&self, scalar: &f32) -> Self {
+      Self {
+         inner: num_complex::Complex::new(
+            self.inner.re * scalar,
+            self.inner.im * scalar,
+         ),
+      }
+   }
+   fn zero_like(&self) -> Self { Self::zero() }
+   fn ones_like(&self) -> Self { Self::one() }
+   fn basis() -> Vec<Self> { vec![Self::one(), Self::i()] }
+}
+
+impl FieldExtension for Complex<f32> {
+   type BaseField = f32;
+   fn degree() -> usize { 2 }
+   fn trace(&self) -> Self::BaseField { self.inner.re + self.inner.re }
+   fn norm(&self) -> Self::BaseField { self.norm_sqr() }
+}
+````
+
+This example showcases the key steps for wrapping external numeric types in Noether:
+
+1. Create a wrapper struct around the external type
+2. Implement basic arithmetic operations by delegating to the wrapped type
+3. Implement Noether's marker traits for algebraic properties
+4. Implement specific algebraic structure traits (like `VectorSpace` and `FieldExtension`)
+
+#### Benefits of Integration
+
+By wrapping external types in this way, you gain several advantages:
+
+- **Type Safety**: Ensure operations maintain mathematical correctness
+- **Algebraic Abstraction**: Express algorithms in terms of abstract structures rather than concrete types
+- **Generic Algorithms**: Write code that works with any type satisfying certain algebraic properties
+- **Mathematical Documentation**: Clarify the mathematical properties of your numeric types
+
+This approach allows you to combine the power of specialized numeric libraries with Noether's comprehensive algebraic framework.
+
 ## Performance
 
 Nœther is designed with performance in mind, leveraging Rust's zero-cost abstractions. The use of trait-based
 polymorphism allows for efficient, monomorphized code when used with concrete types.
 
-However, as with any abstract library, be aware that extensive use of dynamic dispatch (e.g., through trait objects) may
+However, as with any abstract library, be aware that extensive use of dispatch (e.g., through trait objects) may
 incur some runtime cost. In most cases, the compiler can optimize away the abstractions, resulting in performance
 equivalent to hand-written implementations.
 
