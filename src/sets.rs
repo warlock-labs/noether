@@ -26,7 +26,7 @@
 /// 8. Replacement: ∀A(∀x∀y∀z((x ∈ A ∧ φ(x,y) ∧ φ(x,z)) → y = z) → ∃B∀y(y ∈ B ↔ ∃x(x ∈ A ∧ φ(x,y))))
 /// 9. Foundation: ∀A(A ≠ ∅ → ∃x(x ∈ A ∧ x ∩ A = ∅))
 /// 10. Choice: ∀A(∅ ∉ A → ∃f:A → ∪A ∀B∈A(f(B) ∈ B))
-pub trait Set: Sized + Copy + PartialEq {}
+pub trait Set: Sized + PartialEq {}
 
 // Blanket implementation for any type that satisfies the trait bounds
-impl<T: Copy + PartialEq> Set for T {}
+impl<T: PartialEq> Set for T {}

@@ -82,7 +82,7 @@ pub trait SymmetricBilinearForm<F: Field, V: VectorSpace<F>>: BilinearForm<F, V>
 /// A symmetric bilinear form B: V × V → F is positive definite if:
 /// B(v, v) > 0 for all non-zero v ∈ V
 ///
-/// # Properties
+/// # PropertiesE
 /// - Induces an inner product structure on the vector space
 /// - Allows for definitions of length, angle, and orthogonality
 /// - The Gram-Schmidt process applies to these spaces

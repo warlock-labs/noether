@@ -103,7 +103,7 @@ pub trait Polynomial: Clone + PartialEq + ClosedAdd + ClosedMul + Euclid {
 
 // Blanket implementations
 impl<T: AdditiveAbelianGroup + MultiplicativeMonoid + Distributive> Ring for T {}
-impl<T: Ring + crate::operations::CommutativeMultiplication> CommutativeRing for T {}
+impl<T: Ring + CommutativeMultiplication> CommutativeRing for T {}
 impl<T: CommutativeRing> IntegralDomain for T {}
 impl<T: IntegralDomain> UniqueFactorizationDomain for T {}
 impl<T: UniqueFactorizationDomain> PrincipalIdealDomain for T {}

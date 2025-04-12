@@ -13,6 +13,7 @@ pub mod fields;
 pub mod groups;
 pub mod linear;
 pub mod operations;
+pub mod primitives;
 pub mod rings;
 pub mod sets;
 pub mod spaces;
