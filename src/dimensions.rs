@@ -26,7 +26,7 @@
 /// - Enables compile-time dimension checking
 /// - Works with const generics to parameterize types by dimension
 /// - Can be used for static verification of linear algebra operations
-pub trait Dimension: 'static {
+pub trait Dimension {
     /// The numeric value of the dimension
     const VALUE: usize;
 }
@@ -60,7 +60,7 @@ impl<const N: usize> Dimension for Dim<N> {
 /// - Used for tensor shapes, array dimensions, and matrix layouts
 /// - Provides compile-time information about dimensional structure
 /// - Enables shape compatibility checking for operations like matrix multiplication
-pub trait Shape: 'static {
+pub trait Shape {
     /// The rank (number of dimensions) of the shape
     fn rank() -> usize;
 

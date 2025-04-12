@@ -30,3 +30,47 @@ pub trait Set: Sized + PartialEq {}
 
 // Blanket implementation for any type that satisfies the trait bounds
 impl<T: PartialEq> Set for T {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Define some test types to validate the Set trait implementation
+    #[derive(PartialEq, Debug)]
+    struct Point {
+        x: i32,
+        y: i32,
+    }
+
+    #[test]
+    fn test_set_implementation_for_primitives() {
+        // Test that primitive types implement Set
+        fn assert_is_set<T: Set>(_: &T) {}
+
+        assert_is_set(&42i32);
+        assert_is_set(&"hello");
+        assert_is_set(&std::f64::consts::PI);
+        assert_is_set(&true);
+        assert_is_set(&[1, 2, 3]);
+    }
+
+    #[test]
+    fn test_set_implementation_for_custom_types() {
+        // Test that custom types implement Set
+        fn assert_is_set<T: Set>(_: &T) {}
+
+        let point = Point { x: 1, y: 2 };
+        assert_is_set(&point);
+    }
+
+    #[test]
+    fn test_set_equality() {
+        // Test that Set equality works as expected
+        let a = Point { x: 1, y: 2 };
+        let b = Point { x: 1, y: 2 };
+        let c = Point { x: 3, y: 4 };
+
+        assert_eq!(a, b);
+        assert_ne!(a, c);
+    }
+}

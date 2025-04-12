@@ -107,3 +107,409 @@ impl<T: Ring + CommutativeMultiplication> CommutativeRing for T {}
 impl<T: CommutativeRing> IntegralDomain for T {}
 impl<T: IntegralDomain> UniqueFactorizationDomain for T {}
 impl<T: UniqueFactorizationDomain> PrincipalIdealDomain for T {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::operations::{
+        AssociativeAddition, AssociativeMultiplication, CommutativeAddition,
+        CommutativeMultiplication, Distributive,
+    };
+    use num_traits::{One, Zero};
+    use std::ops::{Add, Mul};
+
+    // A simple integer-based structure for testing ring traits
+    #[derive(Debug, Clone, Copy, PartialEq)]
+    struct TestRing(i32);
+
+    impl Add for TestRing {
+        type Output = Self;
+
+        fn add(self, rhs: Self) -> Self::Output {
+            TestRing(self.0 + rhs.0)
+        }
+    }
+
+    impl std::ops::AddAssign for TestRing {
+        fn add_assign(&mut self, rhs: Self) {
+            self.0 += rhs.0;
+        }
+    }
+
+    impl std::ops::Sub for TestRing {
+        type Output = Self;
+
+        fn sub(self, rhs: Self) -> Self::Output {
+            TestRing(self.0 - rhs.0)
+        }
+    }
+
+    impl std::ops::SubAssign for TestRing {
+        fn sub_assign(&mut self, rhs: Self) {
+            self.0 -= rhs.0;
+        }
+    }
+
+    impl Mul for TestRing {
+        type Output = Self;
+
+        fn mul(self, rhs: Self) -> Self::Output {
+            TestRing(self.0 * rhs.0)
+        }
+    }
+
+    impl std::ops::MulAssign for TestRing {
+        fn mul_assign(&mut self, rhs: Self) {
+            self.0 *= rhs.0;
+        }
+    }
+
+    impl std::ops::Div for TestRing {
+        type Output = Self;
+
+        fn div(self, rhs: Self) -> Self::Output {
+            TestRing(self.0 / rhs.0)
+        }
+    }
+
+    impl std::ops::DivAssign for TestRing {
+        fn div_assign(&mut self, rhs: Self) {
+            self.0 /= rhs.0;
+        }
+    }
+
+    impl std::ops::Rem for TestRing {
+        type Output = Self;
+
+        fn rem(self, rhs: Self) -> Self::Output {
+            TestRing(self.0 % rhs.0)
+        }
+    }
+
+    impl std::ops::RemAssign for TestRing {
+        fn rem_assign(&mut self, rhs: Self) {
+            self.0 %= rhs.0;
+        }
+    }
+
+    impl Zero for TestRing {
+        fn zero() -> Self {
+            TestRing(0)
+        }
+
+        fn is_zero(&self) -> bool {
+            self.0 == 0
+        }
+    }
+
+    impl One for TestRing {
+        fn one() -> Self {
+            TestRing(1)
+        }
+    }
+
+    impl std::ops::Neg for TestRing {
+        type Output = Self;
+
+        fn neg(self) -> Self::Output {
+            TestRing(-self.0)
+        }
+    }
+
+    impl num_traits::Inv for TestRing {
+        type Output = Self;
+
+        fn inv(self) -> Self::Output {
+            if self.0 == 0 {
+                panic!("Cannot invert zero");
+            }
+            if self.0 == 1 || self.0 == -1 {
+                self
+            } else {
+                panic!("Only 1 and -1 have multiplicative inverses in integer ring");
+            }
+        }
+    }
+
+    impl num_traits::Euclid for TestRing {
+        fn div_euclid(&self, v: &Self) -> Self {
+            TestRing(self.0.div_euclid(v.0))
+        }
+
+        fn rem_euclid(&self, v: &Self) -> Self {
+            TestRing(self.0.rem_euclid(v.0))
+        }
+    }
+
+    // Marker traits for algebraic properties
+    impl CommutativeAddition for TestRing {}
+    impl AssociativeAddition for TestRing {}
+    impl CommutativeMultiplication for TestRing {}
+    impl AssociativeMultiplication for TestRing {}
+    impl Distributive for TestRing {}
+
+    // Simple Polynomial for testing, we'll skip the Polynomial trait since it has Euclid requirement
+    #[derive(Debug, Clone, PartialEq)]
+    struct SimplePolynomial {
+        coefficients: Vec<i32>, // Coefficients in ascending order of degree
+    }
+
+    impl SimplePolynomial {
+        fn new(coefficients: Vec<i32>) -> Self {
+            // Remove trailing zeros
+            let mut coeffs = coefficients;
+            while coeffs.len() > 1 && *coeffs.last().unwrap() == 0 {
+                coeffs.pop();
+            }
+            Self {
+                coefficients: coeffs,
+            }
+        }
+
+        fn degree(&self) -> usize {
+            if self.coefficients.is_empty()
+                || (self.coefficients.len() == 1 && self.coefficients[0] == 0)
+            {
+                0
+            } else {
+                self.coefficients.len() - 1
+            }
+        }
+
+        fn coefficient(&self, degree: usize) -> i32 {
+            if degree < self.coefficients.len() {
+                self.coefficients[degree]
+            } else {
+                0
+            }
+        }
+    }
+
+    impl Add for SimplePolynomial {
+        type Output = Self;
+
+        fn add(self, rhs: Self) -> Self::Output {
+            let max_len = self.coefficients.len().max(rhs.coefficients.len());
+            let mut result = vec![0; max_len];
+
+            for (i, &coeff) in self.coefficients.iter().enumerate() {
+                result[i] += coeff;
+            }
+
+            for (i, &coeff) in rhs.coefficients.iter().enumerate() {
+                result[i] += coeff;
+            }
+
+            Self::new(result)
+        }
+    }
+
+    impl Mul for SimplePolynomial {
+        type Output = Self;
+
+        fn mul(self, rhs: Self) -> Self::Output {
+            if self.coefficients.is_empty() || rhs.coefficients.is_empty() {
+                return Self::new(vec![0]);
+            }
+
+            let result_degree = self.degree() + rhs.degree();
+            let mut result = vec![0; result_degree + 1];
+
+            for (i, &a) in self.coefficients.iter().enumerate() {
+                for (j, &b) in rhs.coefficients.iter().enumerate() {
+                    result[i + j] += a * b;
+                }
+            }
+
+            Self::new(result)
+        }
+    }
+
+    impl Zero for SimplePolynomial {
+        fn zero() -> Self {
+            Self::new(vec![0])
+        }
+
+        fn is_zero(&self) -> bool {
+            self.coefficients.len() == 1 && self.coefficients[0] == 0
+        }
+    }
+
+    impl One for SimplePolynomial {
+        fn one() -> Self {
+            Self::new(vec![1])
+        }
+    }
+
+    // Marker traits
+    impl CommutativeAddition for SimplePolynomial {}
+    impl AssociativeAddition for SimplePolynomial {}
+    impl CommutativeMultiplication for SimplePolynomial {}
+    impl AssociativeMultiplication for SimplePolynomial {}
+    impl Distributive for SimplePolynomial {}
+
+    #[test]
+    fn test_ring_trait() {
+        // Test that our integer types implement Ring
+        fn assert_is_ring<T: Ring>(_: &T) {}
+
+        assert_is_ring(&5i32);
+        assert_is_ring(&10i64);
+        assert_is_ring(&TestRing(42));
+    }
+
+    #[test]
+    fn test_commutative_ring_trait() {
+        // Test that our integer types implement CommutativeRing
+        fn assert_is_commutative_ring<T: CommutativeRing>(_: &T) {}
+
+        assert_is_commutative_ring(&5i32);
+        assert_is_commutative_ring(&10i64);
+        assert_is_commutative_ring(&TestRing(42));
+    }
+
+    #[test]
+    fn test_integral_domain_trait() {
+        // Test that our integer types implement IntegralDomain
+        fn assert_is_integral_domain<T: IntegralDomain>(_: &T) {}
+
+        assert_is_integral_domain(&5i32);
+        assert_is_integral_domain(&10i64);
+        assert_is_integral_domain(&TestRing(42));
+    }
+
+    #[test]
+    fn test_ufd_trait() {
+        // Test that our integer types implement UniqueFactorizationDomain
+        fn assert_is_ufd<T: UniqueFactorizationDomain>(_: &T) {}
+
+        assert_is_ufd(&5i32);
+        assert_is_ufd(&10i64);
+        assert_is_ufd(&TestRing(42));
+    }
+
+    #[test]
+    fn test_pid_trait() {
+        // Test that our integer types implement PrincipalIdealDomain
+        fn assert_is_pid<T: PrincipalIdealDomain>(_: &T) {}
+
+        assert_is_pid(&5i32);
+        assert_is_pid(&10i64);
+        assert_is_pid(&TestRing(42));
+    }
+
+    #[test]
+    fn test_simple_polynomial() {
+        // Create and test polynomials
+        // p(x) = 1 + 2x + 3x^2
+        let p1 = SimplePolynomial::new(vec![1, 2, 3]);
+        // q(x) = 4 + 5x
+        let p2 = SimplePolynomial::new(vec![4, 5]);
+
+        // Test polynomial addition
+        // (1 + 2x + 3x^2) + (4 + 5x) = 5 + 7x + 3x^2
+        let sum = p1.clone() + p2.clone();
+        assert_eq!(sum, SimplePolynomial::new(vec![5, 7, 3]));
+
+        // Test polynomial multiplication
+        // (1 + 2x + 3x^2) * (4 + 5x) = 4 + 13x + 22x^2 + 15x^3
+        let product = p1.clone() * p2.clone();
+        assert_eq!(product, SimplePolynomial::new(vec![4, 13, 22, 15]));
+
+        // Test degree
+        assert_eq!(p1.degree(), 2);
+        assert_eq!(p2.degree(), 1);
+        assert_eq!(product.degree(), 3);
+
+        // Test coefficient
+        assert_eq!(p1.coefficient(0), 1);
+        assert_eq!(p1.coefficient(1), 2);
+        assert_eq!(p1.coefficient(2), 3);
+        assert_eq!(p1.coefficient(3), 0); // Beyond the degree
+
+        // Test zero polynomial
+        let zero = SimplePolynomial::zero();
+        assert_eq!(zero, SimplePolynomial::new(vec![0]));
+        assert!(zero.is_zero());
+        assert_eq!(zero.degree(), 0);
+
+        // Test one polynomial
+        let one = SimplePolynomial::one();
+        assert_eq!(one, SimplePolynomial::new(vec![1]));
+        assert_eq!(one.degree(), 0);
+    }
+
+    #[test]
+    fn test_ring_axioms() {
+        // Test ring axioms for integers
+
+        // 1. (R, +) is an abelian group
+        // a. Associativity: (a + b) + c = a + (b + c)
+        let a = TestRing(5);
+        let b = TestRing(7);
+        let c = TestRing(10);
+        assert_eq!((a + b) + c, a + (b + c));
+
+        // b. Commutativity: a + b = b + a
+        assert_eq!(a + b, b + a);
+
+        // c. Identity: a + 0 = a
+        assert_eq!(a + TestRing::zero(), a);
+
+        // d. Inverse: a + (-a) = 0
+        assert_eq!(a + (-a), TestRing::zero());
+
+        // 2. (R, ·) is a monoid
+        // a. Associativity: (a · b) · c = a · (b · c)
+        assert_eq!((a * b) * c, a * (b * c));
+
+        // b. Identity: a · 1 = a
+        assert_eq!(a * TestRing::one(), a);
+
+        // 3. Distributivity:
+        // Left: a · (b + c) = (a · b) + (a · c)
+        assert_eq!(a * (b + c), (a * b) + (a * c));
+
+        // Right: (a + b) · c = (a · c) + (b · c)
+        assert_eq!((a + b) * c, (a * c) + (b * c));
+    }
+
+    #[test]
+    fn test_polynomial_ring_structure() {
+        // Test that our polynomial implementation satisfies ring axioms
+
+        // Define some polynomials
+        let p = SimplePolynomial::new(vec![1, 2, 3]); // 1 + 2x + 3x²
+        let q = SimplePolynomial::new(vec![4, 5]); // 4 + 5x
+        let r = SimplePolynomial::new(vec![6, 7, 8]); // 6 + 7x + 8x²
+
+        // Test associativity of addition
+        assert_eq!(
+            (p.clone() + q.clone()) + r.clone(),
+            p.clone() + (q.clone() + r.clone())
+        );
+
+        // Test commutativity of addition
+        assert_eq!(p.clone() + q.clone(), q.clone() + p.clone());
+
+        // Test additive identity
+        let zero = SimplePolynomial::zero();
+        assert_eq!(p.clone() + zero.clone(), p.clone());
+
+        // Test associativity of multiplication
+        assert_eq!(
+            (p.clone() * q.clone()) * r.clone(),
+            p.clone() * (q.clone() * r.clone())
+        );
+
+        // Test multiplicative identity
+        let one = SimplePolynomial::one();
+        assert_eq!(p.clone() * one.clone(), p.clone());
+
+        // Test distributivity
+        assert_eq!(
+            p.clone() * (q.clone() + r.clone()),
+            (p.clone() * q.clone()) + (p.clone() * r.clone())
+        );
+    }
+}

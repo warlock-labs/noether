@@ -431,3 +431,152 @@ impl<T: for<'a> RemAssign<&'a T>> ClosedRemAssignRef for T {}
 // Blanket implementations for zero and one
 impl<T: Zero> ClosedZero for T {}
 impl<T: One> ClosedOne for T {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_closed_add_for_primitives() {
+        fn assert_closed_add<T: ClosedAdd>(_: T) {}
+
+        assert_closed_add(1i32 + 2i32);
+        assert_closed_add(1.5f64 + 2.5f64);
+    }
+
+    #[test]
+    fn test_closed_sub_for_primitives() {
+        fn assert_closed_sub<T: ClosedSub>(_: T) {}
+
+        assert_closed_sub(5i32 - 3i32);
+        assert_closed_sub(5.5f64 - 3.5f64);
+    }
+
+    #[test]
+    fn test_closed_mul_for_primitives() {
+        fn assert_closed_mul<T: ClosedMul>(_: T) {}
+
+        assert_closed_mul(2i32 * 3i32);
+        assert_closed_mul(2.5f64 * 3.5f64);
+    }
+
+    #[test]
+    fn test_closed_div_for_primitives() {
+        fn assert_closed_div<T: ClosedDiv>(_: T) {}
+
+        assert_closed_div(6i32 / 3i32);
+        assert_closed_div(6.0f64 / 3.0f64);
+    }
+
+    #[test]
+    fn test_closed_neg_for_primitives() {
+        fn assert_closed_neg<T: ClosedNeg>(_: T) {}
+
+        assert_closed_neg(-5i32);
+        assert_closed_neg(-5.5f64);
+    }
+
+    #[test]
+    fn test_closed_zero_and_one() {
+        fn assert_closed_zero<T: ClosedZero>(_: T) {}
+        fn assert_closed_one<T: ClosedOne>(_: T) {}
+
+        assert_closed_zero(i32::zero());
+        assert_closed_zero(f64::zero());
+
+        assert_closed_one(i32::one());
+        assert_closed_one(f64::one());
+    }
+
+    #[test]
+    fn test_euclidean_operations() {
+        // For integers, div_euclid and rem_euclid should behave according to euclidean division
+        // where the remainder is always non-negative
+
+        // Positive dividend, positive divisor
+        assert_eq!(10i32.div_euclid(3), 3);
+        assert_eq!(10i32.rem_euclid(3), 1);
+
+        // Negative dividend, positive divisor
+        assert_eq!((-10i32).div_euclid(3), -4);
+        assert_eq!((-10i32).rem_euclid(3), 2);
+
+        // Positive dividend, negative divisor
+        assert_eq!(10i32.div_euclid(-3), -3);
+        assert_eq!(10i32.rem_euclid(-3), 1);
+
+        // Negative dividend, negative divisor
+        assert_eq!((-10i32).div_euclid(-3), 4);
+        assert_eq!((-10i32).rem_euclid(-3), 2);
+    }
+
+    #[test]
+    fn test_assignment_operations() {
+        // Test AddAssign
+        let mut a = 5i32;
+        a += 3;
+        assert_eq!(a, 8);
+
+        // Test SubAssign
+        let mut b = 5i32;
+        b -= 3;
+        assert_eq!(b, 2);
+
+        // Test MulAssign
+        let mut c = 5i32;
+        c *= 3;
+        assert_eq!(c, 15);
+
+        // Test DivAssign
+        let mut d = 6i32;
+        d /= 3;
+        assert_eq!(d, 2);
+
+        // Test RemAssign
+        let mut e = 7i32;
+        e %= 3;
+        assert_eq!(e, 1);
+    }
+
+    // We can't directly test marker traits like CommutativeAddition because they don't
+    // have methods, but we can check that operations behave as expected
+
+    #[test]
+    fn test_commutative_properties() {
+        // For commutative operations, a op b should equal b op a
+        assert_eq!(2 + 3, 3 + 2);
+        assert_eq!(2 * 3, 3 * 2);
+
+        // Non-commutative operations for comparison
+        assert_ne!(2 - 3, 3 - 2);
+        assert_ne!(4 / 2, 2 / 4);
+    }
+
+    #[test]
+    fn test_associative_properties() {
+        // For associative operations, (a op b) op c should equal a op (b op c)
+        assert_eq!((1 + 2) + 3, 1 + (2 + 3));
+        assert_eq!((2 * 3) * 4, 2 * (3 * 4));
+
+        // Non-associative operations for comparison (floating-point can behave differently)
+        // Due to floating-point precision: (a - b) - c may not equal a - (b - c)
+        let a = 1000000.0f32;
+        let b = 999999.9f32;
+        let c = 0.2f32;
+        assert_ne!((a - b) - c, a - (b - c));
+    }
+
+    #[test]
+    fn test_distributive_property() {
+        // For distributive operations, a * (b + c) should equal (a * b) + (a * c)
+        assert_eq!(2 * (3 + 4), (2 * 3) + (2 * 4));
+
+        // With floating-point, we need to be careful about exact equality
+        let a = 2.0f64;
+        let b = 3.0f64;
+        let c = 4.0f64;
+        let left = a * (b + c);
+        let right = (a * b) + (a * c);
+        assert!((left - right).abs() < f64::EPSILON);
+    }
+}
