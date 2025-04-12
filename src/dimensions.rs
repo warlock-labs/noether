@@ -6,9 +6,9 @@
 //!
 //! # Dimensional Structures
 //!
-//! - **Dimensional<N>**: A trait for N-dimensional structures with shape information
-//! - **HasShape<N>**: A trait for enforcing specific shapes at compile-time
-//! - **HasDimension<D>**: A trait marker for fixed-dimension spaces
+//! - **`Dimensional<N>`**: A trait for N-dimensional structures with shape information
+//! - **`HasShape<N>`**: A trait for enforcing specific shapes at compile-time
+//! - **`HasDimension<D>`**: A trait marker for fixed-dimension spaces
 
 /// Trait for N-dimensional structures.
 ///
